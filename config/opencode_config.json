@@ -1,0 +1,59 @@
+{
+  "agent_name": "Advika 3.0",
+  "model": "claude-sonnet-4-20250514",
+  "system_prompt_file": "CLAUDE.md",
+  "mcp_servers": [
+    {
+      "name": "hardware_bridge",
+      "command": "python3",
+      "args": ["mcp_servers/hardware_bridge.py"],
+      "env": {
+        "SERIAL_PORT": "/dev/ttyUSB0",
+        "BAUD_RATE": "115200",
+        "LIDAR_PORT": "/dev/ttyUSB1",
+        "TOF_I2C_BUS": "1",
+        "BMS_I2C_BUS": "1"
+      }
+    },
+    {
+      "name": "vision_bridge",
+      "command": "python3",
+      "args": ["mcp_servers/vision_bridge.py"],
+      "env": {
+        "HORIZON_CAM": "/dev/video0",
+        "FLOOR_CAM": "/dev/video2",
+        "FRAME_WIDTH": "640",
+        "FRAME_HEIGHT": "480",
+        "FPS": "30"
+      }
+    }
+  ],
+  "safety_limits": {
+    "max_linear_velocity": 1.0,
+    "max_angular_velocity": 1.0,
+    "max_step_duration_ms": 2000,
+    "tof_collision_threshold_mm": 120,
+    "lidar_collision_threshold_mm": 200,
+    "tof_obstacle_threshold_mm": 150,
+    "max_step_distance_m": 0.5,
+    "max_rotation_deg": 30
+  },
+  "logging": {
+    "decision_log_path": "/var/log/advika/decisions.jsonl",
+    "level": "INFO",
+    "format": "json"
+  },
+  "tts": {
+    "engine": "espeak-ng",
+    "voice": "en-us",
+    "speed": 150,
+    "pitch": 50
+  },
+  "display": {
+    "type": "ssd1306_i2c",
+    "i2c_address": "0x3C",
+    "width": 128,
+    "height": 64,
+    "default_state": "NEUTRAL"
+  }
+}

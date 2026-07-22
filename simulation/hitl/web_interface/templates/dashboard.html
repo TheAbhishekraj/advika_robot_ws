@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advika 3.0 -- HITL Control Center</title>
+    <style>
+        :root {
+            --bg-dark: #0a0e17;
+            --bg-panel: #111827;
+            --bg-card: #1f2937;
+            --border: #374151;
+            --text: #e5e7eb;
+            --text-muted: #9ca3af;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #06b6d4;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header h1::before {
+            content: "🤖";
+            font-size: 1.8rem;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--danger);
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.connected { background: var(--success); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Main Layout */
+        .main {
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            gap: 1rem;
+            padding: 1rem;
+            max-width: 1920px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 1400px) {
+            .main { grid-template-columns: 260px 1fr; }
+            .right-panel { grid-column: 1 / -1; }
+        }
+
+        @media (max-width: 900px) {
+            .main { grid-template-columns: 1fr; }
+        }
+
+        /* Panels */
+        .panel {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background: var(--bg-card);
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .panel-body { padding: 1rem; }
+
+        /* Mode Selector */
+        .mode-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .mode-btn {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-card);
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+            font-size: 0.875rem;
+        }
+
+        .mode-btn:hover { border-color: var(--accent); }
+        .mode-btn.active {
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.1);
+        }
+        .mode-btn.emergency {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+        .mode-btn.emergency.active {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .mode-btn .mode-label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .mode-btn .mode-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Emergency Stop */
+        .estop-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .estop-btn:hover {
+            background: linear-gradient(135deg, #b91c1c, #991b1b);
+            transform: scale(1.02);
+        }
+
+        .estop-btn:active { transform: scale(0.98); }
+
+        /* Camera Feed */
+        .camera-feed {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .camera-feed img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .camera-overlay {
+            position: absolute;
+            top: 0.5rem;
+            left: 0.5rem;
+            background: rgba(0,0,0,0.7);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        /* Telemetry Grid */
+        .telemetry-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .telemetry-item {
+            background: var(--bg-card);
+            padding: 0.75rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .telemetry-item .value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .telemetry-item .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .telemetry-item.warning .value { color: var(--warning); }
+        .telemetry-item.danger .value { color: var(--danger); }
+
+        /* LiDAR Viz */
+        .lidar-canvas {
+            width: 100%;
+            aspect-ratio: 1;
+            background: var(--bg-dark);
+            border-radius: 8px;
+        }
+
+        /* Action Queue */
+        .action-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .action-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .action-card .action-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .action-card .action-id {
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .action-card .action-goal {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .action-card .action-params {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+
+        .action-card .action-safety {
+            display: flex;
+            gap: 1rem;
+            margin: 0.5rem 0;
+            font-size: 0.75rem;
+        }
+
+        .action-card .action-safety span {
+            padding: 0.125rem 0.5rem;
+            border-radius: 4px;
+            background: var(--bg-dark);
+        }
+
+        .action-card .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            flex: 1;
+        }
+
+        .btn-approve {
+            background: var(--success);
+            color: white;
+        }
+        .btn-approve:hover { background: #059669; }
+
+        .btn-reject {
+            background: var(--danger);
+            color: white;
+        }
+        .btn-reject:hover { background: #dc2626; }
+
+        /* Safety Log */
+        .safety-log {
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+        }
+
+        .safety-entry {
+            padding: 0.5rem;
+            border-left: 3px solid var(--border);
+            margin-bottom: 0.5rem;
+            background: var(--bg-card);
+            border-radius: 0 4px 4px 0;
+        }
+
+        .safety-entry.critical { border-left-color: var(--danger); }
+        .safety-entry.warning { border-left-color: var(--warning); }
+        .safety-entry.caution { border-left-color: var(--info); }
+
+        .safety-entry .time {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+        }
+
+        /* Manual Controls */
+        .manual-controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+        }
+
+        .control-btn {
+            padding: 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all 0.1s;
+        }
+
+        .control-btn:hover { background: var(--accent); border-color: var(--accent); }
+        .control-btn:active { transform: scale(0.95); }
+
+        .control-btn.stop {
+            grid-column: 2;
+            background: var(--danger);
+            border-color: var(--danger);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Advika 3.0 HITL Control Center</h1>
+        <div class="connection-status">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">Disconnected</span>
+        </div>
+    </header>
+
+    <main class="main">
+        <!-- LEFT PANEL: Controls -->
+        <aside class="left-panel">
+            <div class="panel">
+                <div class="panel-header">🎛️ Operating Mode</div>
+                <div class="panel-body">
+                    <div class="mode-selector">
+                        <button class="mode-btn" data-mode="full_auto" onclick="setMode('full_auto')">
+                            <span class="mode-label">🤖 Full Auto</span>
+                            <span class="mode-desc">AI makes all decisions. Human monitors only.</span>
+                        </button>
+                        <button class="mode-btn active" data-mode="supervised" onclick="setMode('supervised')">
+                            <span class="mode-label">👁️ Supervised</span>
+                            <span class="mode-desc">AI proposes, human approves each action.</span>
+                        </button>
+                        <button class="mode-btn" data-mode="manual" onclick="setMode('manual')">
+                            <span class="mode-label">🎮 Manual</span>
+                            <span class="mode-desc">Human controls everything. AI suggests.</span>
+                        </button>
+                        <button class="mode-btn emergency" data-mode="emergency" onclick="setMode('emergency')">
+                            <span class="mode-label">🛑 Emergency</span>
+                            <span class="mode-desc">All AI control suspended. Full stop.</span>
+                        </button>
+                    </div>
+                    <button class="estop-btn" onclick="triggerEStop()">🚨 EMERGENCY STOP</button>
+                </div>
+            </div>
+
+            <div class="panel" style="margin-top: 1rem;">
+                <div class="panel-header">🎮 Manual Drive</div>
+                <div class="panel-body">
+                    <div class="manual-controls">
+                        <button class="control-btn" onmousedown="drive(0.3, 0.5)" onmouseup="drive(0,0)">↖</button>
+                        <button class="control-btn" onmousedown="drive(0.3, 0)" onmouseup="drive(0,0)">↑</button>
+                        <button class="control-btn" onmousedown="drive(0.3, -0.5)" onmouseup="drive(0,0)">↗</button>
+                        <button class="control-btn" onmousedown="drive(0, 0.5)" onmouseup="drive(0,0)">←</button>
+                        <button class="control-btn stop" onmousedown="drive(0,0)">⏹</button>
+                        <button class="control-btn" onmousedown="drive(0, -0.5)" onmouseup="drive(0,0)">→</button>
+                        <button class="control-btn" onmousedown="drive(-0.3, 0.5)" onmouseup="drive(0,0)">↙</button>
+                        <button class="control-btn" onmousedown="drive(-0.3, 0)" onmouseup="drive(0,0)">↓</button>
+                        <button class="control-btn" onmousedown="drive(-0.3, -0.5)" onmouseup="drive(0,0)">↘</button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CENTER PANEL: Visualization -->
+        <section class="center-panel">
+            <div class="panel">
+                <div class="panel-header">📷 Camera Feed</div>
+                <div class="panel-body">
+                    <div class="camera-feed" id="cameraFeed">
+                        <span>Waiting for camera feed...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel" style="margin-top: 1rem;">
+                <div class="panel-header">📡 LiDAR Scan</div>
+                <div class="panel-body">
+                    <canvas class="lidar-canvas" id="lidarCanvas" width="400" height="400"></canvas>
+                </div>
+            </div>
+
+            <div class="panel" style="margin-top: 1rem;">
+                <div class="panel-header">📊 Live Telemetry</div>
+                <div class="panel-body">
+                    <div class="telemetry-grid">
+                        <div class="telemetry-item" id="telPoseX">
+                            <div class="value">--</div>
+                            <div class="label">Position X (m)</div>
+                        </div>
+                        <div class="telemetry-item" id="telPoseY">
+                            <div class="value">--</div>
+                            <div class="label">Position Y (m)</div>
+                        </div>
+                        <div class="telemetry-item" id="telVelLin">
+                            <div class="value">--</div>
+                            <div class="label">Linear Vel (m/s)</div>
+                        </div>
+                        <div class="telemetry-item" id="telVelAng">
+                            <div class="value">--</div>
+                            <div class="label">Angular Vel (rad/s)</div>
+                        </div>
+                        <div class="telemetry-item" id="telLidarMin">
+                            <div class="value">--</div>
+                            <div class="label">LiDAR Min (m)</div>
+                        </div>
+                        <div class="telemetry-item" id="telBattery">
+                            <div class="value">--</div>
+                            <div class="label">Battery (V)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT PANEL: Actions & Safety -->
+        <aside class="right-panel">
+            <div class="panel">
+                <div class="panel-header">
+                    ⏳ Pending Actions
+                    <span id="pendingCount" style="margin-left:auto;background:var(--accent);padding:0.125rem 0.5rem;border-radius:999px;font-size:0.75rem;">0</span>
+                </div>
+                <div class="panel-body">
+                    <div class="action-list" id="actionList">
+                        <div style="color:var(--text-muted);text-align:center;padding:2rem;">
+                            No pending actions
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel" style="margin-top: 1rem;">
+                <div class="panel-header">🛡️ Safety Log</div>
+                <div class="panel-body">
+                    <div class="safety-log" id="safetyLog">
+                        <div style="color:var(--text-muted);text-align:center;padding:1rem;">
+                            No safety events
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        // ==================== WEBSOCKET ====================
+        let ws = null;
+        let reconnectInterval = 1000;
+        let lidarData = [];
+
+        function connect() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
+
+            ws.onopen = () => {
+                console.log('HITL WebSocket connected');
+                document.getElementById('statusDot').classList.add('connected');
+                document.getElementById('statusText').textContent = 'Connected';
+                reconnectInterval = 1000;
+            };
+
+            ws.onmessage = (event) => {
+                const msg = JSON.parse(event.data);
+                handleMessage(msg);
+            };
+
+            ws.onclose = () => {
+                console.log('HITL WebSocket disconnected');
+                document.getElementById('statusDot').classList.remove('connected');
+                document.getElementById('statusText').textContent = 'Reconnecting...';
+                setTimeout(connect, reconnectInterval);
+                reconnectInterval = Math.min(reconnectInterval * 2, 30000);
+            };
+
+            ws.onerror = (err) => {
+                console.error('WebSocket error:', err);
+            };
+        }
+
+        function handleMessage(msg) {
+            switch(msg.type) {
+                case 'connected':
+                    updateMode(msg.data.mode);
+                    break;
+                case 'action_request':
+                    addAction(msg.data);
+                    break;
+                case 'action_update':
+                    updateAction(msg.data);
+                    break;
+                case 'safety_alert':
+                    addSafetyEvent(msg.data);
+                    break;
+                case 'telemetry':
+                    updateTelemetry(msg.data);
+                    break;
+                case 'error':
+                    console.error('Server error:', msg.message);
+                    break;
+            }
+        }
+
+        // ==================== MODE CONTROL ====================
+        function setMode(mode) {
+            fetch(`/api/mode/${mode}`, { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    if(data.success) updateMode(mode);
+                });
+        }
+
+        function updateMode(mode) {
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+        }
+
+        function triggerEStop() {
+            fetch('/api/emergency_stop', { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    if(data.success) updateMode('emergency');
+                });
+        }
+
+        // ==================== MANUAL DRIVE ====================
+        function drive(linear, angular) {
+            fetch(`/api/manual_drive?linear=${linear}&angular=${angular}`, { method: 'POST' });
+        }
+
+        // ==================== ACTIONS ====================
+        function addAction(action) {
+            const list = document.getElementById('actionList');
+            const emptyMsg = list.querySelector('[style*="text-align:center"]');
+            if(emptyMsg) emptyMsg.remove();
+
+            const card = document.createElement('div');
+            card.className = 'action-card';
+            card.id = `action-${action.action_id}`;
+            card.innerHTML = `
+                <div class="action-header">
+                    <span class="action-id">${action.action_id}</span>
+                    <span style="color:var(--warning);font-size:0.75rem;">⏱ ${action.timeout_sec}s</span>
+                </div>
+                <div class="action-goal">${action.goal}</div>
+                <div class="action-params">${action.proposed_action}: ${JSON.stringify(action.parameters)}</div>
+                <div class="action-safety">
+                    <span>📏 ToF: ${action.tof_min_mm}mm</span>
+                    <span>📡 LiDAR: ${action.lidar_min_mm}mm</span>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-approve" onclick="approveAction('${action.action_id}')">✅ Approve</button>
+                    <button class="btn btn-reject" onclick="rejectAction('${action.action_id}')">❌ Reject</button>
+                </div>
+            `;
+            list.prepend(card);
+            updatePendingCount();
+        }
+
+        function updateAction(action) {
+            const card = document.getElementById(`action-${action.action_id}`);
+            if(!card) return;
+
+            const statusColor = action.status === 'approved' ? 'var(--success)' : 'var(--danger)';
+            card.style.borderLeft = `4px solid ${statusColor}`;
+            card.querySelector('.action-buttons').innerHTML = `
+                <span style="color:${statusColor};font-weight:600;width:100%;text-align:center;">
+                    ${action.status.toUpperCase()} by ${action.human_decision}
+                </span>
+            `;
+            updatePendingCount();
+        }
+
+        function approveAction(id) {
+            fetch(`/api/approve/${id}`, { method: 'POST' });
+        }
+
+        function rejectAction(id) {
+            fetch(`/api/reject/${id}`, { method: 'POST' });
+        }
+
+        function updatePendingCount() {
+            const count = document.querySelectorAll('.action-card .action-buttons .btn-approve').length;
+            document.getElementById('pendingCount').textContent = count;
+        }
+
+        // ==================== SAFETY ====================
+        function addSafetyEvent(event) {
+            const log = document.getElementById('safetyLog');
+            const emptyMsg = log.querySelector('[style*="text-align:center"]');
+            if(emptyMsg) emptyMsg.remove();
+
+            const entry = document.createElement('div');
+            entry.className = `safety-entry ${event.level}`;
+            entry.innerHTML = `
+                <div class="time">${new Date(event.timestamp).toLocaleTimeString()}</div>
+                <div style="font-weight:600;margin:0.25rem 0;">[${event.level.toUpperCase()}] ${event.message}</div>
+                <div style="font-size:0.75rem;color:var(--text-muted);">Action: ${event.action_taken}</div>
+            `;
+            log.prepend(entry);
+
+            // Keep only last 50
+            while(log.children.length > 50) log.lastChild.remove();
+        }
+
+        // ==================== TELEMETRY ====================
+        function updateTelemetry(data) {
+            document.querySelector('#telPoseX .value').textContent = data.pose.x.toFixed(2);
+            document.querySelector('#telPoseY .value').textContent = data.pose.y.toFixed(2);
+            document.querySelector('#telVelLin .value').textContent = data.velocity.linear_x.toFixed(2);
+            document.querySelector('#telVelAng .value').textContent = data.velocity.angular_z.toFixed(2);
+            document.querySelector('#telLidarMin .value').textContent = data.lidar_min_m.toFixed(2);
+            document.querySelector('#telBattery .value').textContent = data.battery_voltage.toFixed(1);
+
+            // Color warnings
+            const lidarEl = document.getElementById('telLidarMin');
+            lidarEl.className = 'telemetry-item' + 
+                (data.lidar_min_m < 0.15 ? ' danger' : data.lidar_min_m < 0.30 ? ' warning' : '');
+
+            // Update LiDAR visualization
+            if(data.lidar_scan) {
+                lidarData = data.lidar_scan;
+                drawLidar();
+            }
+        }
+
+        // ==================== LIDAR CANVAS ====================
+        function drawLidar() {
+            const canvas = document.getElementById('lidarCanvas');
+            const ctx = canvas.getContext('2d');
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            const maxRange = 4.0; // meters
+            const scale = Math.min(cx, cy) / maxRange;
+
+            ctx.fillStyle = '#0a0e17';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw grid circles
+            ctx.strokeStyle = '#374151';
+            ctx.lineWidth = 1;
+            for(let r = 1; r <= 4; r++) {
+                ctx.beginPath();
+                ctx.arc(cx, cy, r * scale, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+
+            // Draw crosshairs
+            ctx.beginPath();
+            ctx.moveTo(cx, 0); ctx.lineTo(cx, canvas.height);
+            ctx.moveTo(0, cy); ctx.lineTo(canvas.width, cy);
+            ctx.stroke();
+
+            // Draw robot
+            ctx.fillStyle = '#3b82f6';
+            ctx.beginPath();
+            ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw scan points
+            if(lidarData.length > 0) {
+                for(let i = 0; i < lidarData.length; i++) {
+                    const angle = (i / lidarData.length) * Math.PI * 2 - Math.PI / 2;
+                    const dist = lidarData[i];
+                    if(dist > 0.12 && dist < 12.0) {
+                        const x = cx + Math.cos(angle) * dist * scale;
+                        const y = cy + Math.sin(angle) * dist * scale;
+
+                        const color = dist < 0.3 ? '#ef4444' : dist < 0.6 ? '#f59e0b' : '#10b981';
+                        ctx.fillStyle = color;
+                        ctx.beginPath();
+                        ctx.arc(x, y, 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+        }
+
+        // ==================== KEYBOARD CONTROLS ====================
+        document.addEventListener('keydown', (e) => {
+            if(document.activeElement.tagName === 'INPUT') return;
+
+            const speed = 0.3;
+            const turn = 0.5;
+
+            switch(e.key) {
+                case 'ArrowUp': case 'w': drive(speed, 0); break;
+                case 'ArrowDown': case 's': drive(-speed, 0); break;
+                case 'ArrowLeft': case 'a': drive(0, turn); break;
+                case 'ArrowRight': case 'd': drive(0, -turn); break;
+                case ' ': drive(0, 0); break;
+                case 'Escape': triggerEStop(); break;
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d'].includes(e.key)) {
+                drive(0, 0);
+            }
+        });
+
+        // ==================== INIT ====================
+        connect();
+        drawLidar();
+    </script>
+</body>
+</html>

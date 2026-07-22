@@ -1,0 +1,88 @@
+# Advika 3.0 — Robot Hardware Parameters
+# All distances in meters, angles in radians, times in seconds
+
+robot:
+  name: "Advika 3.0"
+  chassis:
+    length: 0.30          # 300mm
+    width: 0.24           # 240mm
+    height: 0.15          # 150mm
+    wheel_base: 0.20      # Distance between wheel centers
+    wheel_diameter: 0.065 # 65mm (JGA25-370)
+    mass_kg: 2.5
+
+motors:
+  type: "JGA25-370"
+  encoder_ppr: 334        # Pulses per revolution
+  gear_ratio: 34.0
+  max_rpm: 170
+  pwm_frequency_hz: 20000
+  pid:
+    kp: 2.0
+    ki: 0.5
+    kd: 0.1
+    output_limit: 255
+
+sensors:
+  lidar:
+    model: "LD06"
+    port: "/dev/ttyUSB1"
+    baud_rate: 230400
+    scan_rate_hz: 10
+    range_min_m: 0.12
+    range_max_m: 12.0
+    angular_resolution_deg: 10.0  # 36 buckets
+    buckets: 36
+
+  tof_array:
+    model: "VL53L5CX"
+    i2c_bus: 1
+    i2c_address: "0x52"
+    resolution: "8x8"
+    frame_rate_hz: 15
+    range_min_mm: 20
+    range_max_mm: 4000
+    fov_deg: 63
+
+  cameras:
+    horizon:
+      device: "/dev/video0"
+      resolution: [640, 480]
+      fps: 30
+      fov_deg: 75
+    floor:
+      device: "/dev/video2"
+      resolution: [640, 480]
+      fps: 30
+      fov_deg: 120
+
+  bms:
+    i2c_bus: 1
+    i2c_address: "0x0B"
+    cell_count: 3
+    cell_type: "LiPo"
+    capacity_mah: 5000
+    low_voltage_cutoff_v: 9.0
+
+safety:
+  tof_collision_mm: 120
+  lidar_collision_mm: 200
+  tof_obstacle_mm: 150
+  max_step_linear_m: 0.5
+  max_step_rotation_rad: 0.524  # 30 degrees
+  max_drive_duration_ms: 2000
+  recovery:
+    reverse_distance_m: 0.1
+    reverse_speed_mps: 0.1
+    turn_angle_rad: 0.785       # 45 degrees
+    turn_speed_radps: 0.5
+    turn_duration_ms: 800
+
+navigation:
+  map_frame: "map"
+  odom_frame: "odom"
+  base_frame: "base_link"
+  costmap_resolution: 0.05
+  inflation_radius: 0.20
+  max_vel_x: 0.5
+  max_vel_theta: 1.0
