@@ -11,6 +11,7 @@ import json
 import time
 import asyncio
 import threading
+import logging
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
@@ -24,13 +25,20 @@ from nav_msgs.msg import Odometry
 from cv_bridge import CvBridge
 import numpy as np
 
+logger = logging.getLogger("advika.sim_mcp_bridge")
+if not logger.handlers:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+
 # Try to import FastMCP for standalone MCP server mode
 try:
     from fastmcp import FastMCP
     MCP_AVAILABLE = True
 except ImportError:
     MCP_AVAILABLE = False
-    print("FastMCP not available. Running in ROS2-only bridge mode.")
+    logger.warning("FastMCP not available. Running in ROS2-only bridge mode.")
 
 
 @dataclass
