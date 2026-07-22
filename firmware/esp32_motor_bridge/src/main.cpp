@@ -8,6 +8,7 @@
 #include <PID_v1.h>
 #include <Encoder.h>
 #include <ArduinoJson.h>
+#include "safety_interrupt.h"
 
 // ─── Pin Definitions ─────────────────────────────────────────────────
 // Left Motor
@@ -72,7 +73,7 @@ void processCommand(JsonDocument& doc);
 void setMotorSpeeds(double leftVel, double rightVel);
 void updateEncoders();
 void checkEStop();
-void sendTelemetry();
+void sendTelemetry(int id);
 void sendError(const char* message, int id = -1);
 void sendResult(JsonDocument& result, int id);
 
@@ -86,6 +87,7 @@ void setup() {
 
     setupMotors();
     setupPID();
+    safety_init_interrupts();
 
     digitalWrite(LED_PIN, HIGH);
     Serial.println("{\"jsonrpc\":\"2.0\",\"method\":\"initialized\",\"params\":{\"status\":\"ready\"}}");
@@ -97,6 +99,15 @@ void loop() {
 
     // Check E-Stop every loop
     checkEStop();
+    safety_feed_heartbeat();
+
+    if (safety_is_active()) {
+        eStopActive = true;
+        motorsEnabled = false;
+        leftSetpoint = 0;
+        rightSetpoint = 0;
+        setMotorSpeeds(0, 0);
+    }
 
     // Handle incoming serial commands
     handleSerial();
@@ -215,7 +226,7 @@ void processCommand(JsonDocument& doc) {
         sendResult(result, id);
 
     } else if (strcmp(method, "get_telemetry") == 0) {
-        sendTelemetry();
+        sendTelemetry(id);
 
     } else if (strcmp(method, "set_pid") == 0) {
         Kp = doc["params"]["kp"] | Kp;
@@ -296,36 +307,33 @@ void checkEStop() {
         rightSetpoint = 0;
         setMotorSpeeds(0, 0);
         digitalWrite(LED_PIN, LOW);
-
-        Serial.println("{\"jsonrpc\":\"2.0\",\"method\":\"estop_triggered\"}");
     } else if (!estopPressed && eStopActive) {
-        eStopActive = false;
-        motorsEnabled = true;
-        digitalWrite(LED_PIN, HIGH);
-
-        Serial.println("{\"jsonrpc\":\"2.0\",\"method\":\"estop_released\"}");
+        if (!safety_is_active()) {
+            eStopActive = false;
+            motorsEnabled = true;
+            digitalWrite(LED_PIN, HIGH);
+        }
     }
 }
 
 // ─── Send Telemetry ───────────────────────────────────────────────────
-void sendTelemetry() {
-    JsonDocument doc;
-    doc["jsonrpc"] = "2.0";
-    doc["method"] = "telemetry";
+void sendTelemetry(int id) {
+    if (id < 0) {
+        sendError("Missing request id for telemetry", id);
+        return;
+    }
 
-    JsonObject params = doc["params"].to<JsonObject>();
-    params["left_encoder"] = leftEncoder.read();
-    params["right_encoder"] = rightEncoder.read();
-    params["left_velocity"] = leftInput;
-    params["right_velocity"] = rightInput;
-    params["left_pwm"] = leftOutput;
-    params["right_pwm"] = rightOutput;
-    params["estop_active"] = eStopActive;
-    params["motors_enabled"] = motorsEnabled;
-    params["uptime_ms"] = millis();
-
-    serializeJson(doc, Serial);
-    Serial.println();
+    JsonDocument result;
+    result["left_encoder"] = leftEncoder.read();
+    result["right_encoder"] = rightEncoder.read();
+    result["left_velocity"] = leftInput;
+    result["right_velocity"] = rightInput;
+    result["left_pwm"] = leftOutput;
+    result["right_pwm"] = rightOutput;
+    result["estop_active"] = eStopActive;
+    result["motors_enabled"] = motorsEnabled;
+    result["uptime_ms"] = millis();
+    sendResult(result, id);
 }
 
 // ─── Send JSON-RPC Result ─────────────────────────────────────────────
