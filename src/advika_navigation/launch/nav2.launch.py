@@ -15,7 +15,7 @@ def generate_launch_description():
     map_file = LaunchConfiguration('map')
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
 
-    ws_root = os.path.realpath(os.path.expanduser('~/advika_robot_ws'))
+    ws_root = os.path.realpath(os.path.expanduser('~/Documents/Robotics/advika_robot_ws'))
     nav2_params = os.path.join(ws_root, 'simulation', 'config', 'nav2_params.yaml')
 
     nav2_bringup_dir = get_package_share_directory('nav2_bringup')
