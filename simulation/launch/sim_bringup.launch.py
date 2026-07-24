@@ -25,13 +25,13 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     world_file = LaunchConfiguration('world_file', default='advika_playground.world')
     use_rviz = LaunchConfiguration('use_rviz', default='true')
-    use_nav2 = LaunchConfiguration('use_nav2', default='true')
-    use_hitl = LaunchConfiguration('use_hitl', default='true')
+    use_nav2 = LaunchConfiguration('use_nav2', default='false')
+    use_hitl = LaunchConfiguration('use_hitl', default='false')
     hitl_port = LaunchConfiguration('hitl_port', default='8080')
 
     # Paths
-    advika_ws = os.path.realpath(os.path.expanduser('~/advika_robot_ws'))
-    urdf_path = os.path.join(advika_ws, 'simulation', 'urdf', 'advika.urdf')
+    advika_ws = os.path.realpath(os.path.expanduser('~/Documents/Robotics/advika_robot_ws'))
+    urdf_path = os.path.join(advika_ws, 'src', 'advika_description', 'urdf', 'advika.urdf')
     world_path = os.path.join(advika_ws, 'simulation', 'gazebo_worlds')
     rviz_config = os.path.join(advika_ws, 'simulation', 'config', 'advika_sim.rviz')
 
@@ -76,7 +76,7 @@ def generate_launch_description():
             '-name', 'advika',
             '-topic', 'robot_description',
             '-x', '0.0',
-            '-y', '-4.0',
+            '-y', '0.0',
             '-z', '0.1',
             '-Y', '0.0'
         ],
@@ -88,15 +88,12 @@ def generate_launch_description():
         package='ros_gz_bridge',
         executable='parameter_bridge',
         arguments=[
-            '/advika/cmd_vel@geometry_msgs/msg/Twist@gz.msgs.Twist',
-            '/advika/odom@nav_msgs/msg/Odometry@gz.msgs.Odometry',
-            '/advika/scan@sensor_msgs/msg/LaserScan@gz.msgs.LaserScan',
-            '/advika/horizon_camera/image_raw@sensor_msgs/msg/Image@gz.msgs.Image',
-            '/advika/horizon_camera/camera_info@sensor_msgs/msg/CameraInfo@gz.msgs.CameraInfo',
-            '/advika/floor_camera/image_raw@sensor_msgs/msg/Image@gz.msgs.Image',
-            '/advika/floor_camera/camera_info@sensor_msgs/msg/CameraInfo@gz.msgs.CameraInfo',
-            '/advika/imu/data@sensor_msgs/msg/Imu@gz.msgs.IMU',
-            '/advika/tof/depth@sensor_msgs/msg/Image@gz.msgs.Image',
+            '/advika/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist',
+            '/advika/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry',
+            '/advika/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
+            '/advika/horizon_camera/image_raw@sensor_msgs/msg/Image[gz.msgs.Image',
+            '/advika/floor_camera/image_raw@sensor_msgs/msg/Image[gz.msgs.Image',
+            '/advika/imu/data@sensor_msgs/msg/Imu[gz.msgs.IMU',
             '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock'
         ],
         output='screen',
@@ -124,81 +121,6 @@ def generate_launch_description():
         remappings=[('/cmd_vel', '/advika/cmd_vel')]
     )
 
-    # ==================== SLAM (Optional) ====================
-    slam = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([
-            os.path.join(
-                get_package_share_directory('slam_toolbox'),
-                'launch',
-                'online_async_launch.py'
-            )
-        ]),
-        launch_arguments={
-            'use_sim_time': use_sim_time,
-            'slam_params_file': os.path.join(advika_ws, 'simulation', 'config', 'slam_params.yaml')
-        }.items(),
-        condition=IfCondition(use_nav2)
-    )
-
-    # ==================== NAV2 (Optional) ====================
-    nav2 = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([
-            os.path.join(
-                get_package_share_directory('nav2_bringup'),
-                'launch',
-                'navigation_launch.py'
-            )
-        ]),
-        launch_arguments={
-            'use_sim_time': use_sim_time,
-            'params_file': os.path.join(advika_ws, 'simulation', 'config', 'nav2_params.yaml')
-        }.items(),
-        condition=IfCondition(use_nav2)
-    )
-
-    # ==================== HITL WEB SERVER ====================
-    hitl_server = Node(
-        package='advika_sim',
-        executable='hitl_server',
-        name='hitl_server',
-        output='screen',
-        parameters=[{
-            'port': hitl_port,
-            'use_sim_time': use_sim_time
-        }],
-        condition=IfCondition(use_hitl)
-    )
-
-    # ==================== SIMULATION MCP BRIDGE ====================
-    sim_mcp_bridge = Node(
-        package='advika_sim',
-        executable='sim_mcp_bridge',
-        name='sim_mcp_bridge',
-        output='screen',
-        parameters=[{
-            'use_sim_time': use_sim_time,
-            'cmd_vel_topic': '/advika/cmd_vel',
-            'scan_topic': '/advika/scan',
-            'camera_topic': '/advika/horizon_camera/image_raw',
-            'odom_topic': '/advika/odom'
-        }]
-    )
-
-    # ==================== SAFETY MONITOR ====================
-    safety_monitor = Node(
-        package='advika_sim',
-        executable='safety_monitor',
-        name='safety_monitor',
-        output='screen',
-        parameters=[{
-            'use_sim_time': use_sim_time,
-            'scan_topic': '/advika/scan',
-            'cmd_vel_topic': '/advika/cmd_vel',
-            'collision_threshold_m': 0.15,
-            'obstacle_threshold_m': 0.20
-        }]
-    )
-
     # ==================== EVENT HANDLERS ====================
     spawn_after_gazebo = RegisterEventHandler(
         OnProcessStart(
@@ -213,9 +135,14 @@ def generate_launch_description():
     )
 
     bridge_after_spawn = RegisterEventHandler(
-        OnProcessExit(
+        OnProcessStart(
             target_action=spawn_robot,
-            on_exit=[gz_bridge]
+            on_start=[
+                TimerAction(
+                    period=2.0,
+                    actions=[gz_bridge]
+                )
+            ]
         )
     )
 
@@ -226,9 +153,9 @@ def generate_launch_description():
                               description='Gazebo world file'),
         DeclareLaunchArgument('use_rviz', default_value='true',
                               description='Launch RViz'),
-        DeclareLaunchArgument('use_nav2', default_value='true',
+        DeclareLaunchArgument('use_nav2', default_value='false',
                               description='Launch Navigation2'),
-        DeclareLaunchArgument('use_hitl', default_value='true',
+        DeclareLaunchArgument('use_hitl', default_value='false',
                               description='Launch HITL web interface'),
         DeclareLaunchArgument('hitl_port', default_value='8080',
                               description='HITL web server port'),
@@ -240,9 +167,4 @@ def generate_launch_description():
         bridge_after_spawn,
         rviz,
         teleop,
-        TimerAction(period=5.0, actions=[slam]),
-        TimerAction(period=10.0, actions=[nav2]),
-        TimerAction(period=8.0, actions=[hitl_server]),
-        TimerAction(period=6.0, actions=[sim_mcp_bridge]),
-        TimerAction(period=4.0, actions=[safety_monitor])
     ])
