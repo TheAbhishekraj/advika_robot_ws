@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>advika_cad</name>
+  <version>0.1.0</version>
+  <description>Advika 3.0 — CadQuery parametric CAD model (source of truth for all dimensions).</description>
+  <maintainer email="abhishek@advika.local">Abhishek</maintainer>
+  <license>MIT</license>
+  <depend>rclpy</depend>
+  <export><build_type>ament_python</build_type></export>
+</package>

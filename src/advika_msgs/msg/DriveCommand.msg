@@ -1,0 +1,5 @@
+float32 linear
+float32 angular
+float32 battery_voltage
+int32 motor_encoder_left
+int32 motor_encoder_right

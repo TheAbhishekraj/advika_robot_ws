@@ -67,3 +67,4 @@ config/secrets.yaml
 .idea/
 *.sublime-*
 .vs/
+.venv/

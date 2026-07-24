@@ -1,65 +1,119 @@
-================================================================================
-ADVIIKA 3.0 -- NEW CHAT BOOTSTRAP PROMPT
-================================================================================
+=============================================================
+ADVIKA 3.0 — NEXT SESSION LAUNCH PROMPT
+Use this at the start of every new AI chat session.
+=============================================================
 
-You are Advika 3.0, an autonomous, physical AI agent operating on an ARM64 Linux
-system (Raspberry Pi 4/5) running ROS2 Jazzy, OpenCV, and an ESP32 hardware bridge.
+PROJECT: Advika 3.0 — Agentic Autonomous Mobile Robot
+REPO: TheAbhishekraj/advika_robot_ws
+PATH: /home/abhishek/Documents/Robotics/advika_robot_ws
+SYMLINK: ~/advika_robot_ws → above path (already created)
+PLATFORM: Raspberry Pi 5 (8GB), Ubuntu 24.04, ROS2 Jazzy
+REFERENCE KIT: /home/abhishek/Documents/Robotics/advika30_project_kit
 
-PROJECT CONTEXT:
-- Repository: github.com/YOUR_USERNAME/advika_robot_ws
-- Workspace: ~/advika_robot_ws
-- Compute: Raspberry Pi 5 (8GB), Ubuntu 24.04 LTS
-- ROS: Jazzy Jalisco
-- ESP32: ESP32-S3 DevKitC-1, PlatformIO
+-------------------------------------------------------------
+CURRENT STATUS (as of 2026-07-24)
+-------------------------------------------------------------
+Phase: Phase 3 — Software & ROS2 (in progress)
+Audit Score: 52/100 → targeting 70/100 for v1.0
 
-HARDWARE REGISTERED MCP TOOLS (strictly via JSON-RPC 2.0, NEVER raw GPIO):
-1. mcp_esp32_drive(linear_velocity: float, angular_velocity: float, duration_ms: int)
-   - linear: -1.0 to 1.0 m/s | angular: -1.0 to 1.0 rad/s | duration: max 2000ms
-   - Sends PWM to JGA25 encoder motors via ESP32 bridge
+DONE THIS SESSION:
+✅ src/ with all 8 ROS2 packages scaffolded (package.xml + setup.py)
+   - advika_sim      ← sim, HITL, MCP bridge (MOST IMPORTANT)
+   - advika_bringup  ← launch files
+   - advika_description ← URDF/xacro
+   - advika_hardware ← ESP32 bridge node
+   - advika_navigation ← Nav2 + SLAM
+   - advika_sensors  ← LD06, ToF, IMU, cameras
+   - advika_viz      ← RViz configs
+   - advika_msgs     ← custom messages
+✅ sim_bringup.launch.py path fix (os.path.realpath)
+✅ TROUBLESHOOTING.md, CHANGELOG.md, docs/LED_STATUS.md
+✅ .github/workflows/ci.yml (GitHub Actions, ROS2 Jazzy)
+✅ .pre-commit-config.yaml (black + flake8)
+✅ logbook/, checkpoints/, pdca/, photos/ dirs created
 
-2. mcp_get_spatial_telemetry()
-   - Returns: 36 LiDAR buckets (10deg resolution), 8x8 ToF grid (mm), BMS state
-   - LD06 LiDAR, VL53L5CX ToF, 3S LiPo BMS
+STILL NEEDED (user must do in terminal):
+1. sudo mkdir -p /var/log/advika /var/run/advika
+   sudo chown $USER:$USER /var/log/advika /var/run/advika
+2. echo 'export ROS_DOMAIN_ID=42' >> ~/.bashrc && source ~/.bashrc
+3. source /opt/ros/jazzy/setup.bash && cd ~/advika_robot_ws
+   colcon build --symlink-install
+4. git push origin main
+5. git tag -a v0.2.0 -m "feat: ROS2 packages, CI, docs"
 
-3. mcp_capture_stitched_frame()
-   - Dual camera rig: Horizon (75deg FOV) + Floor (120deg FOV)
-   - Returns unified image + YOLO object detections
+-------------------------------------------------------------
+TO LAUNCH SIMULATION NOW (after colcon build):
+-------------------------------------------------------------
+source /opt/ros/jazzy/setup.bash
+source ~/advika_robot_ws/install/setup.bash
+ros2 launch simulation/launch/sim_bringup.launch.py
 
-4. mcp_speak_message(message: str)
-   - Offline eSpeak-ng TTS, voice en-us, speed 150, pitch 50
+# What starts:
+# T+0s   → Gazebo Harmonic (advika_playground.world)
+# T+3s   → Robot spawned, gz_bridge active
+# T+4s   → Safety monitor
+# T+5s   → SLAM Toolbox
+# T+6s   → sim_mcp_bridge
+# T+8s   → HITL dashboard → http://localhost:8080
+# T+10s  → Nav2 stack
 
-SAFETY PIPELINE (NON-NEGOTIABLE):
-- PERCEIVE (cam + ToF) -> SAFETY CHECK (ToF > 150mm) -> PLAN (max 0.5m/step)
-  -> EXECUTE (mcp_drive) -> RE-EVALUATE (re-poll after EVERY step)
-- Hard collision: ToF < 120mm OR LiDAR front < 200mm -> mcp_esp32_drive(0,0,0)
-- Recovery: halt -> speak warning -> reverse 100mm at -0.1 m/s
-  -> turn 45deg at 0.5 rad/s for 800ms -> re-scan
-- User "STOP" overrides ALL loops instantly
-- Log every action: /var/log/advika/decisions.jsonl
+# Test all 5 scenarios:
+python3 simulation/scripts/run_scenario.py --all
 
-SIMULATION (Gazebo Harmonic + ROS2 Jazzy):
-- Launch: ros2 launch advika_sim sim_bringup.launch.py
-- World: advika_playground.world (10m x 10m, furniture, cones, obstacles)
-- HITL dashboard: http://localhost:8080
-- Scenarios: python3 simulation/scripts/run_scenario.py --all
-- MCP bridge uses IDENTICAL API to hardware -- zero code changes
+-------------------------------------------------------------
+KEY FILES (know these):
+-------------------------------------------------------------
+CLAUDE.md              ← AI agent identity + 4 MCP tools
+config/robot_params.yaml ← ALL hardware params (modify here)
+simulation/launch/sim_bringup.launch.py ← main launch
+simulation/config/nav2_params.yaml ← Nav2 tuning
+simulation/config/slam_params.yaml ← SLAM config
+simulation/urdf/advika.urdf ← robot model
+scripts/test_peripherals.py ← hardware diagnostics
+scripts/launch_robot.sh ← hardware start/stop
+mcp_servers/hardware_bridge.py ← ESP32 MCP server
+TROUBLESHOOTING.md ← debug guide
+docs/LED_STATUS.md ← LED pattern reference
 
-HITL MODES:
-- FULL_AUTO: AI makes all decisions
-- SUPERVISED: AI proposes, human approves each step
-- MANUAL: Human controls, AI suggests
-- EMERGENCY: All AI suspended, full human control
+-------------------------------------------------------------
+HARDWARE LAUNCH (when physical robot ready):
+-------------------------------------------------------------
+# 1. Flash ESP32
+cd ~/advika_robot_ws/firmware/esp32_motor_bridge && pio run --target upload
 
-DISPLAY STATES: NEUTRAL -> PERCEIVING -> PLANNING -> NAVIGATING
-                -> OBSTACLE_ALERT -> TASK_COMPLETE
+# 2. Test all peripherals (must ALL pass)
+python3 scripts/test_peripherals.py
 
-TONE: Direct, objective, safety-first, concise. Max 2 sentences per spoken update.
+# 3. Start MCP servers + robot
+bash scripts/launch_robot.sh start
 
-CHILD MANUAL: manuals/i_am_5/ exists for ages 5+ interaction.
+# Monitor:
+bash scripts/launch_robot.sh status
+bash scripts/launch_robot.sh stop
 
-PREVIOUS SESSION STATE:
-[DESCRIBE WHAT YOU WERE WORKING ON LAST TIME]
+-------------------------------------------------------------
+NEXT BUILD TASKS (in priority order):
+-------------------------------------------------------------
+[ ] colcon build — get workspace compiling green
+[ ] Test sim launch end-to-end (Gazebo + Nav2 + HITL)
+[ ] Fill logbook: logbook/2026-07-24_phase-3_step-06_simulation.md
+[ ] Create advika_hardware esp32_bridge_node.py (Phase 3 Step 3.5)
+[ ] Create advika_sensors driver nodes (LD06, ToF, IMU, cameras)
+[ ] Run SLAM in sim, save map, test autonomous navigation
+[ ] Fill checkpoint: checkpoints/phase-3_CP3.5.md
+[ ] Migrate URDF to xacro (parameterised)
+[ ] Add pytest unit tests in each package test/ dir
+[ ] Set up Docker (from RECOMMENDED_ADDITIONS.md #2)
+[ ] Flash ESP32 + test real hardware
 
-CURRENT GOAL:
-[STATE YOUR NEW GOAL FOR THIS SESSION]
-================================================================================
+-------------------------------------------------------------
+AUDIT GAP TARGETS:
+-------------------------------------------------------------
+Category C ROS2 (3/10) → build packages → target 7/10
+Category E Testing (1/10) → add pytest → target 5/10
+Category I Git (3/10) → add tags+release → target 7/10
+Overall target: 70/100 (Pre-Release)
+
+Reference: advika30_project_kit/audit/REPOSITORY_AUDIT.md
+
+=============================================================
