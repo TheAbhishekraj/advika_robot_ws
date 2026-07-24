@@ -410,9 +410,16 @@ class DiagnosticRunner:
         }
 
         report_path = "/var/log/advika/diagnostic_report.json"
-        with open(report_path, "w") as f:
-            json.dump(report, f, indent=2)
-        print(f"Full report saved to: {report_path}\n")
+        try:
+            os.makedirs(os.path.dirname(report_path), exist_ok=True)
+            with open(report_path, "w") as f:
+                json.dump(report, f, indent=2)
+            print(f"Full report saved to: {report_path}\n")
+        except Exception:
+            local_report = os.path.expanduser("~/Documents/Robotics/advika_robot_ws/diagnostic_report.json")
+            with open(local_report, "w") as f:
+                json.dump(report, f, indent=2)
+            print(f"Full report saved to: {local_report}\n")
 
 
 if __name__ == "__main__":

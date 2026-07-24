@@ -13,7 +13,7 @@ from launch_ros.actions import Node
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
 
-    ws_root = os.path.realpath(os.path.expanduser('~/advika_robot_ws'))
+    ws_root = os.path.realpath(os.path.expanduser('~/Documents/Robotics/advika_robot_ws'))
     slam_params = os.path.join(ws_root, 'simulation', 'config', 'slam_params.yaml')
 
     return LaunchDescription([
