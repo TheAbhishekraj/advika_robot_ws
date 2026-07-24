@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>advika_viz</name>
+  <version>0.1.0</version>
+  <description>Advika 3.0 — RViz2 configuration files and visualisation utilities.</description>
+  <maintainer email="abhishek@advika.local">Abhishek</maintainer>
+  <license>MIT</license>
+  <depend>rclpy</depend>
+  <depend>rviz2</depend>
+  <export><build_type>ament_python</build_type></export>
+</package>

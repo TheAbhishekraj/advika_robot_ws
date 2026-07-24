@@ -30,7 +30,8 @@ def generate_launch_description():
     hitl_port = LaunchConfiguration('hitl_port', default='8080')
 
     # Paths
-    advika_ws = os.path.expanduser('~/advika_robot_ws')
+    # Resolve actual workspace path (supports symlink ~/advika_robot_ws → actual location)
+    advika_ws = os.path.realpath(os.path.expanduser('~/advika_robot_ws'))
     urdf_path = os.path.join(advika_ws, 'simulation', 'urdf', 'advika.urdf')
     world_path = os.path.join(advika_ws, 'simulation', 'gazebo_worlds')
     rviz_config = os.path.join(advika_ws, 'simulation', 'config', 'advika_sim.rviz')

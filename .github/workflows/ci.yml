@@ -1,0 +1,53 @@
+name: Advika 3.0 CI
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-24.04
+    container:
+      image: ros:jazzy-ros-base
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install ROS2 dependencies
+        run: |
+          apt-get update
+          rosdep update
+          rosdep install --from-paths src --ignore-src -y || true
+
+      - name: Install Python tools
+        run: pip3 install black flake8 pytest
+
+      - name: Black formatting check
+        run: black --check mcp_servers/ simulation/scripts/ simulation/hitl/
+
+      - name: Flake8 lint check
+        run: flake8 mcp_servers/ simulation/scripts/ simulation/hitl/ --max-line-length=100
+
+      - name: Build workspace (if packages exist)
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          if [ -d "src" ] && [ "$(ls -A src)" ]; then
+            colcon build --symlink-install --packages-select advika_sim || true
+          fi
+        shell: bash
+
+      - name: Verify URDF exists
+        run: |
+          test -f simulation/urdf/advika.urdf && echo "URDF OK" || (echo "URDF MISSING" && exit 1)
+
+      - name: Verify launch file syntax
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          python3 -c "import ast; ast.parse(open('simulation/launch/sim_bringup.launch.py').read()); print('Launch file syntax OK')"
+        shell: bash
+
+      - name: Verify robot_params.yaml
+        run: python3 -c "import yaml; yaml.safe_load(open('config/robot_params.yaml')); print('robot_params.yaml OK')"
