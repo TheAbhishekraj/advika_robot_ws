@@ -1,0 +1,134 @@
+# Advika 3.0 Simulation Requirements
+# Ubuntu 24.04 LTS + ROS2 Jazzy + Gazebo Harmonic
+# Generated: 2026-07-25
+
+# ===========================================
+# SYSTEM PACKAGES (apt)
+# ===========================================
+# Install via: sudo apt install <package-names>
+
+# ROS2 Jazzy Core
+ros-jazzy-desktop
+ros-jazzy-ros2-core
+ros-jazzy-ros2bag
+
+# Navigation Stack
+ros-jazzy-navigation2
+ros-jazzy-nav2-bringup
+ros-jazzy-slam-toolbox
+ros-jazzy-navigation2-tools
+
+# Gazebo Harmonic
+ros-jazzy-ros-gz
+ros-jazzy-gz-ros2-control
+ros-jazzy-ros2-control
+ros-jazzy-ros2-controller
+ros-jazzy-joint-state-broadcaster
+ros-jazzy-diff-drive-controller
+ros-jazzy-joint-trajectory-controller
+
+# Visualization
+ros-jazzy-rviz2
+ros-jazzy-robot-state-publisher
+ros-jazzy-joint-state-publisher
+ros-jazzy-xacro
+
+# Teleop
+ros-jazzy-teleop-twist-keyboard
+
+# Gazebo (standalone)
+gz-harmonic
+
+# ===========================================
+# PYTHON PACKAGES (pip3)
+# ===========================================
+# Install via: pip3 install -r requirements.txt
+
+# Web Server / HITL
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+websockets>=12.0
+starlette>=0.27.0
+
+# Image Processing / Vision
+opencv-python>=4.8.0
+opencv-contrib-python>=4.8.0
+numpy>=1.24.0
+Pillow>=10.0.0
+imageio>=2.31.0
+
+# ROS2 Python
+rclpy>=0.6.0
+geometry-msgs>=0.7.0
+sensor-msgs>=0.7.0
+nav-msgs>=0.7.0
+visualization-msgs>=0.7.0
+
+# Data / Logging
+pyyaml>=6.0
+pydantic>=2.0.0
+python-multipart>=0.0.6
+
+# Utilities
+httpx>=0.25.0
+aiofiles>=23.0.0
+python-dateutil>=2.8.0
+
+# JSON Schema
+jsonschema>=4.19.0
+
+# ===========================================
+# OPTIONAL: Record & Playback
+# ===========================================
+ros-jazzy-ros2bag2
+ros-jazzy-ros2bag
+
+# ===========================================
+# OPTIONAL: AI/TTS
+# ===========================================
+# Text-to-Speech (for robot voice)
+espeak-ng>=1.52
+
+# ===========================================
+# VERIFICATION COMMANDS
+# ===========================================
+"""
+After installation, verify with:
+
+# Check ROS2
+ros2 --version
+
+# Check Gazebo
+gz sim --version
+
+# Check Python packages
+python3 -c "import fastapi; print(f'fastapi: {fastapi.__version__}')"
+python3 -c "import cv2; print(f'opencv: {cv2.__version__}')"
+"""
+
+# ===========================================
+# INSTALLATION COMMAND (Run once)
+# ===========================================
+"""
+# Step 1: System packages
+sudo apt update
+sudo apt install -y \
+    ros-jazzy-desktop \
+    ros-jazzy-navigation2 \
+    ros-jazzy-nav2-bringup \
+    ros-jazzy-slam-toolbox \
+    ros-jazzy-ros-gz \
+    ros-jazzy-teleop-twist-keyboard \
+    gz-harmonic \
+    ros-jazzy-robot-state-publisher \
+    ros-jazzy-joint-state-publisher \
+    ros-jazzy-xacro \
+    ros-jazzy-rviz2 \
+    espeak-ng
+
+# Step 2: Python packages
+pip3 install -r requirements.txt
+
+# Step 3: Verify
+./scripts/verify_installation.py
+"""

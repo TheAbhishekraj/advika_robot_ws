@@ -23,6 +23,9 @@
 - [Simulation](#simulation)
 - [Safety](#safety)
 - [HITL -- Human-in-the-Loop](#hitl--human-in-the-loop)
+- [CAD Design](#cad-design)
+- [Furniture Design](#furniture-design)
+- [Mentorship Program](#mentorship-program)
 - [I am 5 -- Child Manual](#i-am-5--child-friendly-robot-manual)
 - [File Structure](#file-structure)
 - [Contributing](#contributing)
@@ -116,7 +119,32 @@ Full Gazebo Harmonic simulation with identical MCP APIs to hardware:
 | **MCP Bridge** | Same API as hardware -- zero code changes |
 | **Scenarios** | 5 built-in automated test scenarios |
 
-See [SIMULATION_GUIDE.md](simulation/docs/SIMULATION_GUIDE.md) for full details.
+### Quick Start Commands
+
+```bash
+# Single command setup (first time only)
+bash <(curl -fsSL https://raw.githubusercontent.com/TheAbhishekraj/advika_robot_ws/main/scripts/setup_advika.sh)
+
+# Launch simulation
+ros2 launch advika_sim sim_bringup.launch.py
+
+# With Navigation2
+ros2 launch advika_sim sim_bringup.launch.py use_nav2:=true
+
+# With HITL dashboard
+ros2 launch advika_sim sim_bringup.launch.py use_hitl:=true
+```
+
+### Key Simulation Documents
+
+| Document | Purpose |
+|----------|---------|
+| [PREREQUISITES_CHECK.md](docs/PREREQUISITES_CHECK.md) | System requirements & verification |
+| [SIMULATION_MASTER_GUIDE.md](docs/SIMULATION_MASTER_GUIDE.md) | Complete 9-week learning path |
+| [COMMANDS_REFERENCE.md](docs/COMMANDS_REFERENCE.md) | All terminal commands |
+| [AUDIT_CHECKLIST.md](docs/AUDIT_CHECKLIST.md) | External review / third-party audit |
+
+See [simulation/docs/SIMULATION_GUIDE.md](simulation/docs/SIMULATION_GUIDE.md) for full details.
 
 ---
 
@@ -181,6 +209,122 @@ Features: Live camera, LiDAR viz, telemetry, action queue, safety log, manual co
 
 ---
 
+## CAD Design
+
+Advika 3.0 includes Fusion 360-compatible CAD files for 3D printing custom components.
+
+### Available Components
+
+| Component | Material | Status | Priority |
+|-----------|----------|--------|----------|
+| Chassis Base v3 | PETG | ⚠️ Design needed | HIGH |
+| Wheel Hubs (×2) | PETG | ⚠️ Design needed | HIGH |
+| LiDAR Tower | PETG | ⚠️ Design needed | HIGH |
+| Top Dome | PETG | ⚠️ Design needed | HIGH |
+| Motor Mounts | PETG | ⚠️ Design needed | MEDIUM |
+| Battery Tray | PETG | ⚠️ Design needed | MEDIUM |
+| Camera Bracket | PETG | ⚠️ Design needed | MEDIUM |
+| ToF Holder | PETG | ⚠️ Design needed | MEDIUM |
+| Bumpers | TPU 95A | ⚠️ Design needed | MEDIUM |
+
+### CAD Workflow
+
+1. Open [FUSION360_WORKFLOW.md](docs/FUSION360_WORKFLOW.md) for design specifications
+2. Export STL files to `src/advika_cad/meshes/`
+3. Export STEP files to `src/advika_cad/step/`
+4. Update URDF with mesh references (see [MESH_EXPORT_GUIDE.md](docs/MESH_EXPORT_GUIDE.md))
+
+### Directory Structure
+
+```
+src/advika_cad/
+├── meshes/           # STL files for 3D printing
+├── step/             # STEP files for mechanical design
+├── fusion360/        # Fusion 360 project files
+└── advika_cad/       # ROS2 package
+```
+
+### Print Settings
+
+| Material | Nozzle | Layer Height | Infill | Perimeters |
+|----------|--------|--------------|--------|------------|
+| PETG | 0.4mm | 0.2mm | 30-50% | 3-4 |
+| TPU 95A | 0.4mm | 0.24mm | 20% | 3 |
+
+---
+
+## Furniture Design
+
+Custom furniture models for realistic indoor simulation in the 3BHK world.
+
+### Living Room
+- Sofa (3-seater + 2-seater) - 2200×900×800mm
+- Coffee Table - 1200×600×400mm (glass top)
+- TV Unit - 1800×450×1200mm
+- Floor Lamp - 1600mm height
+
+### Kitchen
+- L-Shaped Counter - 2400×600×900mm
+- Dining Table - 1500×900×750mm (seats 6)
+- Dining Chairs (×4)
+- Refrigerator - 700×700×1800mm
+
+### Bedrooms
+- Double Bed (Master) - 2000×1800mm mattress
+- Single Beds (×2) - 1900×900mm mattress
+- Wardrobes, Study Desks, Bookshelf
+
+### Documentation
+
+See [3BHK_FURNITURE_SPEC.md](docs/3BHK_FURNITURE_SPEC.md) for complete dimensions, materials, and Gazebo placement coordinates.
+
+---
+
+## Mentorship Program
+
+Follow this structured path to complete simulation and CAD design BEFORE hardware.
+
+### Your Learning Path
+
+```
+Phase 1: SIMULATION MASTER (Weeks 1-4)
+├── Week 1: Get Gazebo running, drive robot
+├── Week 2: URDF deep dive, modify robot
+├── Week 3: Navigate 3BHK world with Nav2
+└── Week 4: Get HITL dashboard working
+
+Phase 2: DESIGN FLUENCY (Weeks 5-8)
+├── Week 5: Learn Fusion 360 basics
+├── Week 6: Design wheel hub
+├── Week 7: Design chassis base
+└── Week 8: Design remaining components
+
+Phase 3: HARDWARE PREP (Week 9+)
+├── Create Bill of Materials
+├── Find print service or buy printer
+└── Order electronic components
+```
+
+### Key Documents
+
+| Document | Purpose |
+|----------|---------|
+| [MENTORSHIP_GUIDE.md](docs/MENTORSHIP_GUIDE.md) | Full 9-week curriculum |
+| [SIMULATION_FIRST_CHECKLIST.md](docs/SIMULATION_FIRST_CHECKLIST.md) | Week-by-week checklist |
+| [FUSION360_WORKFLOW.md](docs/FUSION360_WORKFLOW.md) | CAD design specs |
+
+### Graduation Requirements
+
+Before buying hardware, you must demonstrate:
+- ✅ Robot navigates 3BHK autonomously
+- ✅ All 9 STL files designed and printed
+- ✅ URDF updated with real meshes
+- ✅ Bill of Materials completed
+
+**Remember:** Simulation validates. Design perfects. Hardware is the reward.
+
+---
+
 ## I am 5 -- Child-Friendly Robot Manual
 
 A complete guide for children ages 5+ to safely interact with Advika:
@@ -235,6 +379,13 @@ advika_robot_ws/
 |-- docs/
 |   |-- CAD_README.md                  # 3D chassis print guide
 |   |-- Wiring_README.md               # Electrical schematic docs
+|   |-- FUSION360_WORKFLOW.md          # Fusion 360 design workflow
+|   |-- 3BHK_FURNITURE_SPEC.md         # Furniture dimensions/materials
+|   |-- MESH_EXPORT_GUIDE.md           # STL/DAE/URDF export guide
+|   |-- fusion360/                     # Fusion 360 documentation
+|   |-- furniture/                    # Furniture design docs
+|   |-- images/                       # Screenshots and renders
+|   |-- reports/                      # Audit reports
 |
 |-- simulation/                          # FULL SIMULATION SUITE
 |   |-- urdf/
@@ -261,6 +412,21 @@ advika_robot_ws/
 |   |   |   |   |-- dashboard.html     # Real-time HITL dashboard
 |   |-- docs/
 |   |   |-- SIMULATION_GUIDE.md        # Complete sim tutorial
+|
+|-- src/
+|   |-- advika_bringup/               # Robot bringup launch files
+|   |-- advika_description/           # URDF and mesh assets
+|   |-- advika_cad/                   # 3D CAD files for printing
+|   |   |-- meshes/                   # STL files for 3D printing
+|   |   |-- step/                     # STEP files for mechanical
+|   |   |-- fusion360/                # Fusion 360 project files
+|   |-- advika_sim/                   # Gazebo simulation
+|   |   |-- worlds/                   # World files (3BHK, living_room, etc.)
+|   |   |-- urdf/
+|   |   |-- launch/
+|   |   |-- config/
+|   |   |-- scripts/
+|   |   |-- hitl/
 ```
 
 ---

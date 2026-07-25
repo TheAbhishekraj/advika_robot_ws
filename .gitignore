@@ -68,3 +68,41 @@ config/secrets.yaml
 *.sublime-*
 .vs/
 .venv/
+
+# === CAD / 3D Printing ===
+# STL mesh files (too large for git, should be in releases)
+*.stl
+
+# STEP mechanical files
+*.step
+*.stp
+
+# Fusion 360 project files
+*.f3d
+*.f3z
+
+# Inventor / AutoCAD
+*.ipt
+*.iam
+*.dwg
+*.dxf
+
+# Blender
+*.blend
+*.blend1
+
+# 3D printing slicer profiles
+*.ini
+*.cfg
+*.prusa
+*.creality
+
+# Rendered images
+*.png
+*.jpg
+!docs/images/*.png
+!docs/images/*.jpg
+
+# 3D scans / point clouds
+*.ply
+*.pcd
