@@ -1,8 +1,9 @@
 import os
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction, ExecuteProcess
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
+from launch.conditions import IfCondition
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 
@@ -11,8 +12,11 @@ def generate_launch_description():
     advika_sim_dir = get_package_share_directory('advika_sim')
     advika_description_dir = get_package_share_directory('advika_description')
     
-    # World file
-    world_file = os.path.join(advika_sim_dir, 'worlds', '3bhk_house.world')
+    # Arguments
+    world_arg = DeclareLaunchArgument('world', default_value='living_room.world', description='World file name')
+    auto_move_arg = DeclareLaunchArgument('auto_move', default_value='true', description='Move robot automatically in a circle')
+    
+    world_file = os.path.join(advika_sim_dir, 'worlds', 'living_room.world')
     
     # RViz config
     rviz_config = os.path.join(advika_sim_dir, 'config', 'advika_sim.rviz')
@@ -34,6 +38,9 @@ def generate_launch_description():
             robot_description_content = f.read()
 
     return LaunchDescription([
+        world_arg,
+        auto_move_arg,
+        
         # Gazebo
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
@@ -49,11 +56,12 @@ def generate_launch_description():
             name='robot_state_publisher',
             output='screen',
             parameters=[{
-                'robot_description': robot_description_content
+                'robot_description': robot_description_content,
+                'use_sim_time': True
             }]
         ),
         
-        # Spawn robot after 5 seconds
+        # Spawn robot after 5 seconds - spawn away from coffee table
         TimerAction(
             period=5.0,
             actions=[
@@ -63,7 +71,7 @@ def generate_launch_description():
                     arguments=[
                         '-name', 'advika_robot',
                         '-topic', '/robot_description',
-                        '-x', '0', '-y', '0', '-z', '0.5',
+                        '-x', '-1.5', '-y', '-1.0', '-z', '0.5',
                     ],
                     output='screen'
                 )
@@ -87,6 +95,20 @@ def generate_launch_description():
                         '/clock@rosgraph_msgs/msg/Clock@gz.msgs.Clock',
                     ],
                     output='screen'
+                )
+            ]
+        ),
+        
+        # Auto-move command
+        TimerAction(
+            period=10.0,
+            actions=[
+                ExecuteProcess(
+                    condition=IfCondition(LaunchConfiguration('auto_move')),
+                    cmd=['ros2', 'topic', 'pub', '/advika/cmd_vel', 'geometry_msgs/msg/Twist', 
+                         '"{linear: {x: 0.3}, angular: {z: 0.2}}"', '-r', '10'],
+                    shell=True,
+                    output='log'
                 )
             ]
         ),

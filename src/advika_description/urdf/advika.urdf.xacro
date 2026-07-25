@@ -182,85 +182,91 @@
     <origin xyz="0 0 ${-wheel_z + 0.003}" rpy="0 0 0"/>
   </joint>
 
-  <!-- ==================== DIFF DRIVE PLUGIN ==================== -->
+  <!-- ==================== GAZEBO HARMONIC PLUGINS ==================== -->
+  <!-- Differential drive controller -->
   <gazebo>
-    <plugin filename="libgazebo_ros_diff_drive.so" name="diff_drive">
-      <ros>
-        <namespace>/advika</namespace>
-        <remapping>cmd_vel:=cmd_vel</remapping>
-        <remapping>odom:=odom</remapping>
-      </ros>
-      <update_rate>50</update_rate>
+    <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
       <left_joint>left_wheel_joint</left_joint>
       <right_joint>right_wheel_joint</right_joint>
       <wheel_separation>${wheelbase}</wheel_separation>
-      <wheel_diameter>${wheel_d}</wheel_diameter>
-      <max_wheel_torque>20</max_wheel_torque>
+      <wheel_radius>${wheel_d/2}</wheel_radius>
+      <max_linear_acceleration>1.0</max_linear_acceleration>
+      <min_linear_acceleration>-1.0</min_linear_acceleration>
+      <max_angular_acceleration>2.0</max_angular_acceleration>
+      <min_angular_acceleration>-2.0</min_angular_acceleration>
       <max_linear_velocity>0.5</max_linear_velocity>
       <max_angular_velocity>1.0</max_angular_velocity>
-      <publish_odom>true</publish_odom>
-      <publish_odom_tf>true</publish_odom_tf>
-      <publish_wheel_tf>false</publish_wheel_tf>
-      <odometry_source>1</odometry_source>
+      <topic>/advika/cmd_vel</topic>
+      <odom_topic>/advika/odom</odom_topic>
+      <frame_id>odom</frame_id>
+      <child_frame_id>base_footprint</child_frame_id>
+      <odom_publish_frequency>50</odom_publish_frequency>
+    </plugin>
+  </gazebo>
+
+  <!-- Joint state publisher (needed for TF) -->
+  <gazebo>
+    <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+      <joint_name>left_wheel_joint</joint_name>
+      <joint_name>right_wheel_joint</joint_name>
+      <topic>/advika/joint_states</topic>
     </plugin>
   </gazebo>
 
   <!-- ==================== LIDAR PLUGIN ==================== -->
   <gazebo reference="lidar_sensor">
     <sensor name="lidar" type="gpu_lidar">
-      <update_rate>20</update_rate>
+      <always_on>true</always_on>
+      <update_rate>10</update_rate>
+      <topic>/advika/scan</topic>
+      <gz_frame_id>lidar_sensor</gz_frame_id>
       <lidar>
-        <scan><horizontal><samples>360</samples><resolution>1</resolution><min_angle>${-pi}</min_angle><max_angle>${pi}</max_angle></horizontal></scan>
+        <scan><horizontal>
+          <samples>360</samples><resolution>1</resolution>
+          <min_angle>${-pi}</min_angle><max_angle>${pi}</max_angle>
+        </horizontal></scan>
         <range><min>0.12</min><max>5.0</max><resolution>0.01</resolution></range>
       </lidar>
-      <plugin filename="libgazebo_ros_lidar.so" name="lidar_plugin">
-        <ros><namespace>/advika</namespace><remapping>scan:=scan</remapping></ros>
-        <output_type>sensor_msgs/LaserScan</output_type>
-        <frame_name>lidar_sensor</frame_name>
-      </plugin>
     </sensor>
   </gazebo>
 
   <!-- ==================== HORIZON CAMERA PLUGIN ==================== -->
   <gazebo reference="horizon_camera_link">
     <sensor name="horizon_camera" type="camera">
-      <update_rate>30</update_rate>
+      <always_on>true</always_on>
+      <update_rate>15</update_rate>
+      <topic>/advika/horizon_camera/image_raw</topic>
+      <gz_frame_id>horizon_camera_link</gz_frame_id>
       <camera>
         <horizontal_fov>1.22</horizontal_fov>
         <image><width>320</width><height>240</height><format>R8G8B8</format></image>
         <clip><near>0.1</near><far>100</far></clip>
       </camera>
-      <plugin filename="libgazebo_ros_camera.so" name="horizon_camera_plugin">
-        <ros><namespace>/advika</namespace><remapping>horizon_camera/image_raw:=horizon_camera/image_raw</remapping></ros>
-        <frame_name>horizon_camera_link</frame_name>
-      </plugin>
     </sensor>
   </gazebo>
 
   <!-- ==================== FLOOR CAMERA PLUGIN ==================== -->
   <gazebo reference="floor_camera_link">
     <sensor name="floor_camera" type="camera">
-      <update_rate>30</update_rate>
+      <always_on>true</always_on>
+      <update_rate>15</update_rate>
+      <topic>/advika/floor_camera/image_raw</topic>
+      <gz_frame_id>floor_camera_link</gz_frame_id>
       <camera>
         <horizontal_fov>2.09</horizontal_fov>
         <image><width>320</width><height>240</height><format>R8G8B8</format></image>
         <clip><near>0.05</near><far>10</far></clip>
       </camera>
-      <plugin filename="libgazebo_ros_camera.so" name="floor_camera_plugin">
-        <ros><namespace>/advika</namespace><remapping>floor_camera/image_raw:=floor_camera/image_raw</remapping></ros>
-        <frame_name>floor_camera_link</frame_name>
-      </plugin>
     </sensor>
   </gazebo>
 
   <!-- ==================== IMU PLUGIN ==================== -->
   <gazebo reference="imu_link">
     <sensor name="imu" type="imu">
+      <always_on>true</always_on>
       <update_rate>100</update_rate>
-      <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
-        <ros><namespace>/advika</namespace><remapping>imu/data:=imu/data</remapping></ros>
-        <frame_name>imu_link</frame_name>
-      </plugin>
+      <topic>/advika/imu/data</topic>
+      <gz_frame_id>imu_link</gz_frame_id>
     </sensor>
   </gazebo>
 
