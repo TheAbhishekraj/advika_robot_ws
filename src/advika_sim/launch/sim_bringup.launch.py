@@ -21,7 +21,7 @@ def generate_launch_description():
     # FIXED PATHS
     advika_ws = os.path.realpath(os.path.expanduser('~/Documents/Robotics/advika_robot_ws'))
     urdf_path = os.path.join(advika_ws, 'src', 'advika_description', 'urdf', 'advika.urdf')
-    world_path = os.path.join(advika_ws, 'simulation', 'gazebo_worlds')
+    world_path = os.path.join(advika_ws, 'src', 'advika_sim', 'worlds')
     rviz_config = os.path.join(advika_ws, 'simulation', 'config', 'advika_sim.rviz')
 
     # Verify URDF exists
@@ -34,7 +34,7 @@ def generate_launch_description():
 
     # Gazebo
     gazebo = ExecuteProcess(
-        cmd=['gz', 'sim', '-r', '-v', '4', os.path.join(world_path, 'advika_playground.world')],
+        cmd=['gz', 'sim', '-r', '-v', '4', os.path.join(world_path, '3bhk_house.world')],
         output='screen',
         cwd=advika_ws
     )
@@ -67,7 +67,7 @@ def generate_launch_description():
         arguments=[
             '-name', 'advika',
             '-topic', 'robot_description',
-            '-x', '0.0', '-y', '0.0', '-z', '0.1', '-Y', '0.0'
+            '-x', '0.0', '-y', '0.0', '-z', '0.5', '-Y', '0.0'
         ],
         output='screen'
     )
@@ -116,7 +116,7 @@ def generate_launch_description():
     spawn_after_gazebo = RegisterEventHandler(
         OnProcessStart(
             target_action=gazebo,
-            on_start=[TimerAction(period=3.0, actions=[spawn_robot])]
+            on_start=[TimerAction(period=5.0, actions=[spawn_robot])]
         )
     )
 
@@ -137,5 +137,4 @@ def generate_launch_description():
         spawn_after_gazebo,
         bridge_after_spawn,
         rviz,
-        teleop,
     ])
