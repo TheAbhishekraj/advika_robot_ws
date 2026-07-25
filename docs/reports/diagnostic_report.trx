@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestRun id="e14c1187-d42f-41be-8fca-01edb95764d9" name="Advika 3.0 Hardware Diagnostic Audit" runUser="abhishek" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Results>
+    <UnitTestResult executionId="exec_1" testId="test_1" testName="ESP32 Serial Communication" duration="00:00:00.000117" outcome="Failed">
+      <Output>
+        <ErrorInfo>
+          <Message>Serial error: [Errno 2] could not open port /dev/ttyUSB0: [Errno 2] No such file or directory: '/dev/ttyUSB0'</Message>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="exec_2" testId="test_2" testName="Motor Drive Command" duration="00:00:00.000001" outcome="Failed">
+      <Output>
+        <ErrorInfo>
+          <Message>ESP32 serial not available</Message>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="exec_3" testId="test_3" testName="Encoder Feedback" duration="00:00:00.000001" outcome="Failed">
+      <Output>
+        <ErrorInfo>
+          <Message>ESP32 serial not available</Message>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="exec_4" testId="test_4" testName="LD06 LiDAR" duration="00:00:00.000068" outcome="Failed">
+      <Output>
+        <ErrorInfo>
+          <Message>LiDAR error: [Errno 2] could not open port /dev/ttyUSB1: [Errno 2] No such file or directory: '/dev/ttyUSB1'</Message>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="exec_5" testId="test_5" testName="VL53L5CX ToF Array (8x8)" duration="00:00:00.023067" outcome="Failed">
+      <Output>
+        <ErrorInfo>
+          <Message>ToF error: [Errno 13] Permission denied: '/dev/i2c-1'</Message>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="exec_6" testId="test_6" testName="Battery Management System" duration="00:00:00.000037" outcome="Failed">
+      <Output>
+        <ErrorInfo>
+          <Message>BMS error: [Errno 13] Permission denied: '/dev/i2c-1'</Message>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="exec_7" testId="test_7" testName="Dual Camera Rig" duration="00:00:01.064901" outcome="Failed">
+      <Output>
+        <ErrorInfo>
+          <Message>horizon: 640x480 | (1/2 cameras working)</Message>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="exec_8" testId="test_8" testName="Text-to-Speech (eSpeak-ng)" duration="00:00:00.014770" outcome="Failed">
+      <Output>
+        <ErrorInfo>
+          <Message>espeak-ng not found in PATH</Message>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="exec_9" testId="test_9" testName="I2C Bus Scan" duration="00:00:00.000064" outcome="Failed">
+      <Output>
+        <ErrorInfo>
+          <Message>I2C error: [Errno 13] Permission denied: '/dev/i2c-1'</Message>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="ESP32 Serial Communication" id="test_1" />
+    <UnitTest name="Motor Drive Command" id="test_2" />
+    <UnitTest name="Encoder Feedback" id="test_3" />
+    <UnitTest name="LD06 LiDAR" id="test_4" />
+    <UnitTest name="VL53L5CX ToF Array (8x8)" id="test_5" />
+    <UnitTest name="Battery Management System" id="test_6" />
+    <UnitTest name="Dual Camera Rig" id="test_7" />
+    <UnitTest name="Text-to-Speech (eSpeak-ng)" id="test_8" />
+    <UnitTest name="I2C Bus Scan" id="test_9" />
+  </TestDefinitions>
+</TestRun>
