@@ -19,9 +19,20 @@ def generate_launch_description():
     if not os.path.exists(rviz_config):
         rviz_config = os.path.join(advika_description_dir, 'rviz', 'advika.rviz')
     
-    # URDF file
+    # URDF / Xacro file resolution
     urdf_file = os.path.join(advika_description_dir, 'urdf', 'advika.urdf.xacro')
-    
+    if not os.path.exists(urdf_file):
+        urdf_file = os.path.join(advika_description_dir, 'urdf', 'advika.urdf')
+
+    # Load robot description
+    try:
+        import xacro
+        doc = xacro.process_file(urdf_file)
+        robot_description_content = doc.toxml()
+    except Exception:
+        with open(urdf_file, 'r') as f:
+            robot_description_content = f.read()
+
     return LaunchDescription([
         # Gazebo
         IncludeLaunchDescription(
@@ -38,7 +49,7 @@ def generate_launch_description():
             name='robot_state_publisher',
             output='screen',
             parameters=[{
-                'robot_description': open(urdf_file).read()
+                'robot_description': robot_description_content
             }]
         ),
         
