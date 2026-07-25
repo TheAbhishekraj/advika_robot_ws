@@ -1,0 +1,267 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="advika">
+
+  <!-- ==================== PROPERTIES ==================== -->
+  <xacro:property name="chassis_l" value="0.300"/>
+  <xacro:property name="chassis_w" value="0.240"/>
+  <xacro:property name="chassis_h" value="0.050"/>
+  <xacro:property name="wheel_d" value="0.065"/>
+  <xacro:property name="wheel_w" value="0.030"/>
+  <xacro:property name="wheelbase" value="0.200"/>
+  <xacro:property name="wheel_z" value="0.0325"/>
+  <xacro:property name="caster_d" value="0.015"/>
+  <xacro:property name="caster_x" value="0.120"/>
+  <xacro:property name="lidar_z" value="0.150"/>
+  <xacro:property name="lidar_d" value="0.070"/>
+  <xacro:property name="lidar_h" value="0.040"/>
+  <xacro:property name="pi_z" value="0.025"/>
+  <xacro:property name="pi_l" value="0.085"/>
+  <xacro:property name="pi_w" value="0.056"/>
+  <xacro:property name="camera_z" value="0.100"/>
+  <xacro:property name="camera_tilt_up" value="0.2618"/>
+  <xacro:property name="floor_cam_z" value="0.025"/>
+  <xacro:property name="floor_cam_tilt" value="0.7854"/>
+
+  <!-- ==================== MATERIALS ==================== -->
+  <material name="black"><color rgba="0.1 0.1 0.1 1"/></material>
+  <material name="grey"><color rgba="0.5 0.5 0.5 1"/></material>
+  <material name="white"><color rgba="0.9 0.9 0.9 1"/></material>
+  <material name="blue"><color rgba="0.2 0.3 0.8 1"/></material>
+  <material name="red"><color rgba="0.8 0.2 0.2 1"/></material>
+  <material name="clear"><color rgba="0.8 0.9 1.0 0.3"/></material>
+
+  <!-- ==================== BASE LINK ==================== -->
+  <link name="base_footprint">
+    <visual><geometry><sphere radius="0.001"/></geometry></visual>
+  </link>
+
+  <link name="base_link">
+    <visual>
+      <geometry><box size="${chassis_l} ${chassis_w} ${chassis_h}"/></geometry>
+      <material name="blue"/>
+    </visual>
+    <collision>
+      <geometry><box size="${chassis_l} ${chassis_w} ${chassis_h}"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="1.5"/>
+      <inertia ixx="0.01" ixy="0" ixz="0" iyy="0.01" iyz="0" izz="0.02"/>
+    </inertial>
+  </link>
+
+  <joint name="base_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 ${wheel_z}" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ==================== LEFT WHEEL ==================== -->
+  <link name="left_wheel">
+    <visual>
+      <geometry><cylinder radius="${wheel_d/2}" length="${wheel_w}"/></geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <geometry><cylinder radius="${wheel_d/2}" length="${wheel_w}"/></geometry>
+      <surface>
+        <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction>
+      </surface>
+    </collision>
+    <inertial>
+      <mass value="0.2"/>
+      <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0002"/>
+    </inertial>
+  </link>
+
+  <joint name="left_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="left_wheel"/>
+    <origin xyz="0 ${wheelbase/2} 0" rpy="${-pi/2} 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <!-- ==================== RIGHT WHEEL ==================== -->
+  <link name="right_wheel">
+    <visual>
+      <geometry><cylinder radius="${wheel_d/2}" length="${wheel_w}"/></geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <geometry><cylinder radius="${wheel_d/2}" length="${wheel_w}"/></geometry>
+      <surface>
+        <friction><ode><mu>0.8</mu><mu2>0.8</mu2></ode></friction>
+      </surface>
+    </collision>
+    <inertial>
+      <mass value="0.2"/>
+      <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0002"/>
+    </inertial>
+  </link>
+
+  <joint name="right_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="right_wheel"/>
+    <origin xyz="0 ${-wheelbase/2} 0" rpy="${-pi/2} 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <!-- ==================== FRONT CASTER ==================== -->
+  <link name="front_caster">
+    <visual><geometry><sphere radius="${caster_d/2}"/></geometry><material name="grey"/></visual>
+    <collision><geometry><sphere radius="${caster_d/2}"/></geometry></collision>
+    <inertial><mass value="0.05"/><inertia ixx="0.00001" ixy="0" ixz="0" iyy="0.00001" iyz="0" izz="0.00001"/></inertial>
+  </link>
+  <joint name="front_caster_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="front_caster"/>
+    <origin xyz="${caster_x} 0 ${-wheel_z + caster_d/2}" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ==================== REAR CASTER ==================== -->
+  <link name="rear_caster">
+    <visual><geometry><sphere radius="${caster_d/2}"/></geometry><material name="grey"/></visual>
+    <collision><geometry><sphere radius="${caster_d/2}"/></geometry></collision>
+    <inertial><mass value="0.05"/><inertia ixx="0.00001" ixy="0" ixz="0" iyy="0.00001" iyz="0" izz="0.00001"/></inertial>
+  </link>
+  <joint name="rear_caster_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="rear_caster"/>
+    <origin xyz="${-caster_x} 0 ${-wheel_z + caster_d/2}" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ==================== LIDAR ==================== -->
+  <link name="lidar_sensor">
+    <visual>
+      <geometry><cylinder radius="${lidar_d/2}" length="${lidar_h}"/></geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <geometry><cylinder radius="${lidar_d/2}" length="${lidar_h}"/></geometry>
+    </collision>
+    <inertial><mass value="0.1"/><inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/></inertial>
+  </link>
+  <joint name="lidar_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_sensor"/>
+    <origin xyz="0 0 ${lidar_z - wheel_z + lidar_h/2}" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ==================== HORIZON CAMERA ==================== -->
+  <link name="horizon_camera_link">
+    <visual><geometry><box size="0.025 0.024 0.008"/></geometry><material name="black"/></visual>
+    <collision><geometry><box size="0.025 0.024 0.008"/></geometry></collision>
+    <inertial><mass value="0.01"/><inertia ixx="0.000001" ixy="0" ixz="0" iyy="0.000001" iyz="0" izz="0.000001"/></inertial>
+  </link>
+  <joint name="horizon_camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="horizon_camera_link"/>
+    <origin xyz="0.13 0 ${camera_z - wheel_z}" rpy="0 ${camera_tilt_up} 0"/>
+  </joint>
+
+  <!-- ==================== FLOOR CAMERA ==================== -->
+  <link name="floor_camera_link">
+    <visual><geometry><box size="0.025 0.024 0.008"/></geometry><material name="black"/></visual>
+    <collision><geometry><box size="0.025 0.024 0.008"/></geometry></collision>
+    <inertial><mass value="0.01"/><inertia ixx="0.000001" ixy="0" ixz="0" iyy="0.000001" iyz="0" izz="0.000001"/></inertial>
+  </link>
+  <joint name="floor_camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="floor_camera_link"/>
+    <origin xyz="0.13 0 ${floor_cam_z - wheel_z}" rpy="0 ${floor_cam_tilt} 0"/>
+  </joint>
+
+  <!-- ==================== IMU ==================== -->
+  <link name="imu_link">
+    <visual><geometry><box size="0.020 0.015 0.003"/></geometry><material name="red"/></visual>
+    <collision><geometry><box size="0.020 0.015 0.003"/></geometry></collision>
+    <inertial><mass value="0.005"/><inertia ixx="0.0000001" ixy="0" ixz="0" iyy="0.0000001" iyz="0" izz="0.0000001"/></inertial>
+  </link>
+  <joint name="imu_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="imu_link"/>
+    <origin xyz="0 0 ${-wheel_z + 0.003}" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ==================== DIFF DRIVE PLUGIN ==================== -->
+  <gazebo>
+    <plugin filename="libgazebo_ros_diff_drive.so" name="diff_drive">
+      <ros>
+        <namespace>/advika</namespace>
+        <remapping>cmd_vel:=cmd_vel</remapping>
+        <remapping>odom:=odom</remapping>
+      </ros>
+      <update_rate>50</update_rate>
+      <left_joint>left_wheel_joint</left_joint>
+      <right_joint>right_wheel_joint</right_joint>
+      <wheel_separation>${wheelbase}</wheel_separation>
+      <wheel_diameter>${wheel_d}</wheel_diameter>
+      <max_wheel_torque>20</max_wheel_torque>
+      <max_linear_velocity>0.5</max_linear_velocity>
+      <max_angular_velocity>1.0</max_angular_velocity>
+      <publish_odom>true</publish_odom>
+      <publish_odom_tf>true</publish_odom_tf>
+      <publish_wheel_tf>false</publish_wheel_tf>
+      <odometry_source>1</odometry_source>
+    </plugin>
+  </gazebo>
+
+  <!-- ==================== LIDAR PLUGIN ==================== -->
+  <gazebo reference="lidar_sensor">
+    <sensor name="lidar" type="gpu_lidar">
+      <update_rate>20</update_rate>
+      <lidar>
+        <scan><horizontal><samples>360</samples><resolution>1</resolution><min_angle>${-pi}</min_angle><max_angle>${pi}</max_angle></horizontal></scan>
+        <range><min>0.12</min><max>5.0</max><resolution>0.01</resolution></range>
+      </lidar>
+      <plugin filename="libgazebo_ros_lidar.so" name="lidar_plugin">
+        <ros><namespace>/advika</namespace><remapping>scan:=scan</remapping></ros>
+        <output_type>sensor_msgs/LaserScan</output_type>
+        <frame_name>lidar_sensor</frame_name>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <!-- ==================== HORIZON CAMERA PLUGIN ==================== -->
+  <gazebo reference="horizon_camera_link">
+    <sensor name="horizon_camera" type="camera">
+      <update_rate>30</update_rate>
+      <camera>
+        <horizontal_fov>1.22</horizontal_fov>
+        <image><width>320</width><height>240</height><format>R8G8B8</format></image>
+        <clip><near>0.1</near><far>100</far></clip>
+      </camera>
+      <plugin filename="libgazebo_ros_camera.so" name="horizon_camera_plugin">
+        <ros><namespace>/advika</namespace><remapping>horizon_camera/image_raw:=horizon_camera/image_raw</remapping></ros>
+        <frame_name>horizon_camera_link</frame_name>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <!-- ==================== FLOOR CAMERA PLUGIN ==================== -->
+  <gazebo reference="floor_camera_link">
+    <sensor name="floor_camera" type="camera">
+      <update_rate>30</update_rate>
+      <camera>
+        <horizontal_fov>2.09</horizontal_fov>
+        <image><width>320</width><height>240</height><format>R8G8B8</format></image>
+        <clip><near>0.05</near><far>10</far></clip>
+      </camera>
+      <plugin filename="libgazebo_ros_camera.so" name="floor_camera_plugin">
+        <ros><namespace>/advika</namespace><remapping>floor_camera/image_raw:=floor_camera/image_raw</remapping></ros>
+        <frame_name>floor_camera_link</frame_name>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <!-- ==================== IMU PLUGIN ==================== -->
+  <gazebo reference="imu_link">
+    <sensor name="imu" type="imu">
+      <update_rate>100</update_rate>
+      <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
+        <ros><namespace>/advika</namespace><remapping>imu/data:=imu/data</remapping></ros>
+        <frame_name>imu_link</frame_name>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+</robot>

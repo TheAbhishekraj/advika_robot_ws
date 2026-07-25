@@ -1,93 +1,27 @@
 <?xml version="1.0"?>
 <sdf version="1.6">
   <world name="3bhk_house">
+    
+    <!-- Physics -->
     <physics type="ode">
-      <max_step_size>0.002</max_step_size>
-      <real_time_factor>2.0</real_time_factor>
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
     </physics>
-
+    
+    <!-- Scene -->
     <scene>
       <ambient>0.4 0.4 0.4 1</ambient>
-      <background>0.7 0.7 0.7 1</background>
+      <background>0.85 0.85 0.9 1</background>
       <shadows>true</shadows>
     </scene>
-
-    <!-- Ground floor -->
-    <model name="ground_plane">
-      <static>true</static>
-      <link name="link">
-        <collision name="collision">
-          <geometry><plane><normal>0 0 1</normal><size>20 20</size></plane></geometry>
-        </collision>
-        <visual name="visual">
-          <geometry><plane><normal>0 0 1</normal><size>20 20</size></plane></geometry>
-          <material><ambient>0.8 0.8 0.8 1</ambient></material>
-        </visual>
-      </link>
-    </model>
-
-    <!-- Outer Walls (12m x 10m footprint) -->
-    <!-- North Wall -->
-    <model name="wall_north">
-      <static>true</static>
-      <pose>0 5 1.25 0 0 0</pose>
-      <link name="link">
-        <collision name="collision"><geometry><box><size>12 0.2 2.5</size></box></geometry></collision>
-        <visual name="visual"><geometry><box><size>12 0.2 2.5</size></box></geometry><material><ambient>0.9 0.9 0.9 1</ambient></material></visual>
-      </link>
-    </model>
     
-    <!-- South Wall -->
-    <model name="wall_south">
-      <static>true</static>
-      <pose>0 -5 1.25 0 0 0</pose>
-      <link name="link">
-        <collision name="collision"><geometry><box><size>12 0.2 2.5</size></box></geometry></collision>
-        <visual name="visual"><geometry><box><size>12 0.2 2.5</size></box></geometry><material><ambient>0.9 0.9 0.9 1</ambient></material></visual>
-      </link>
-    </model>
+    <!-- Ground -->
+    <include>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Ground Plane</uri>
+    </include>
     
-    <!-- West Wall -->
-    <model name="wall_west">
-      <static>true</static>
-      <pose>-6 0 1.25 0 0 0</pose>
-      <link name="link">
-        <collision name="collision"><geometry><box><size>0.2 10 2.5</size></box></geometry></collision>
-        <visual name="visual"><geometry><box><size>0.2 10 2.5</size></box></geometry><material><ambient>0.9 0.9 0.9 1</ambient></material></visual>
-      </link>
-    </model>
-    
-    <!-- East Wall -->
-    <model name="wall_east">
-      <static>true</static>
-      <pose>6 0 1.25 0 0 0</pose>
-      <link name="link">
-        <collision name="collision"><geometry><box><size>0.2 10 2.5</size></box></geometry></collision>
-        <visual name="visual"><geometry><box><size>0.2 10 2.5</size></box></geometry><material><ambient>0.9 0.9 0.9 1</ambient></material></visual>
-      </link>
-    </model>
-
-    <!-- Inner Wall 1 (Living Room divider) -->
-    <model name="wall_inner_1">
-      <static>true</static>
-      <pose>-1 0 1.25 0 0 0</pose>
-      <link name="link">
-        <collision name="collision"><geometry><box><size>10 0.1 2.5</size></box></geometry></collision>
-        <visual name="visual"><geometry><box><size>10 0.1 2.5</size></box></geometry></visual>
-      </link>
-    </model>
-
-    <!-- Inner Wall 2 (Bedroom divider) -->
-    <model name="wall_inner_2">
-      <static>true</static>
-      <pose>2 -2 1.25 0 0 0</pose>
-      <link name="link">
-        <collision name="collision"><geometry><box><size>0.1 6 2.5</size></box></geometry></collision>
-        <visual name="visual"><geometry><box><size>0.1 6 2.5</size></box></geometry></visual>
-      </link>
-    </model>
-
-    <!-- Sun light -->
+    <!-- Sun -->
     <light name="sun" type="directional">
       <pose>5 5 10 0 0 0</pose>
       <diffuse>0.8 0.8 0.8 1</diffuse>
@@ -95,5 +29,97 @@
       <direction>-0.5 0.1 -0.9</direction>
       <cast_shadows>true</cast_shadows>
     </light>
+    
+    <!-- Indoor lights -->
+    <light name="living_light" type="point">
+      <pose>0 0 2.5 0 0 0</pose>
+      <diffuse>0.9 0.9 0.85 1</diffuse>
+      <attenuation><range>8</range><constant>0.5</constant><linear>0.01</linear><quadratic>0.001</quadratic></attenuation>
+    </light>
+    <light name="kitchen_light" type="point">
+      <pose>3.5 -1.5 2.5 0 0 0</pose>
+      <diffuse>0.9 0.9 0.85 1</diffuse>
+      <attenuation><range>6</range><constant>0.5</constant><linear>0.01</linear><quadratic>0.001</quadratic></attenuation>
+    </light>
+    <light name="bedroom_light" type="point">
+      <pose>-2 3.5 2.5 0 0 0</pose>
+      <diffuse>0.9 0.9 0.85 1</diffuse>
+      <attenuation><range>6</range><constant>0.5</constant><linear>0.01</linear><quadratic>0.001</quadratic></attenuation>
+    </light>
+    
+    <!-- ==================== OUTER WALLS ==================== -->
+    <!-- North wall (Living room + Kitchen) -->
+    <model name="wall_north_living"><static>true</static><pose>0 2.5 1.25 0 0 0</pose>
+      <link name="link"><collision name="c"><geometry><box><size>6.2 0.1 2.5</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>6.2 0.1 2.5</size></box></geometry><material><ambient>0.95 0.95 0.95 1</ambient></material></visual></link></model>
+    
+    <!-- South wall -->
+    <model name="wall_south"><static>true</static><pose>0 -2.5 1.25 0 0 0</pose>
+      <link name="link"><collision name="c"><geometry><box><size>6.2 0.1 2.5</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>6.2 0.1 2.5</size></box></geometry><material><ambient>0.95 0.95 0.95 1</ambient></material></visual></link></model>
+    
+    <!-- East wall (Living side) -->
+    <model name="wall_east_living"><static>true</static><pose>3.1 0 1.25 0 0 0</pose>
+      <link name="link"><collision name="c"><geometry><box><size>0.1 5.0 2.5</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.1 5.0 2.5</size></box></geometry><material><ambient>0.95 0.95 0.95 1</ambient></material></visual></link></model>
+    
+    <!-- East wall (Kitchen extension) -->
+    <model name="wall_east_kitchen"><static>true</static><pose>3.1 -1.8 1.25 0 0 0</pose>
+      <link name="link"><collision name="c"><geometry><box><size>0.1 1.4 2.5</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.1 1.4 2.5</size></box></geometry><material><ambient>0.95 0.95 0.95 1</ambient></material></visual></link></model>
+    
+    <!-- West wall (Living) -->
+    <model name="wall_west_living"><static>true</static><pose>-3.1 0.75 1.25 0 0 0</pose>
+      <link name="link"><collision name="c"><geometry><box><size>0.1 3.5 2.5</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.1 3.5 2.5</size></box></geometry><material><ambient>0.95 0.95 0.95 1</ambient></material></visual></link></model>
+    
+    <!-- West wall (Bedroom side) -->
+    <model name="wall_west_bed"><static>true</static><pose>-3.1 3.5 1.25 0 0 0</pose>
+      <link name="link"><collision name="c"><geometry><box><size>0.1 2.0 2.5</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>0.1 2.0 2.5</size></box></geometry><material><ambient>0.95 0.95 0.95 1</ambient></material></visual></link></model>
+    
+    <!-- ==================== INNER WALLS ==================== -->
+    <!-- Living-Kitchen divider (with doorway at x=2.5) -->
+    <model name="wall_living_kitchen_1"><static>true</static><pose>1.0 -1.8 1.25 0 0 0</pose>
+      <link name="link"><collision name="c"><geometry><box><size>3.0 0.1 2.5</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>3.0 0.1 2.5</size></box></geometry><material><ambient>0.95 0.95 0.95 1</ambient></material></visual></link></model>
+    
+    <!-- Hallway divider -->
+    <model name="wall_hallway_north"><static>true</static><pose>-1.5 2.5 1.25 0 0 0</pose>
+      <link name="link"><collision name="c"><geometry><box><size>3.2 0.1 2.5</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>3.2 0.1 2.5</size></box></geometry><material><ambient>0.95 0.95 0.95 1</ambient></material></visual></link></model>
+    
+    <!-- Bedroom 1 divider (Master) -->
+    <model name="wall_bed1_south"><static>true</static><pose>-1.5 1.8 1.25 0 0 0</pose>
+      <link name="link"><collision name="c"><geometry><box><size>3.2 0.1 2.5</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>3.2 0.1 2.5</size></box></geometry><material><ambient>0.95 0.95 0.95 1</ambient></material></visual></link></model>
+    
+    <!-- Bedroom 2 divider -->
+    <model name="wall_bed2_south"><static>true</static><pose>-1.5 0.6 1.25 0 0 0</pose>
+      <link name="link"><collision name="c"><geometry><box><size>3.2 0.1 2.5</size></box></geometry></collision>
+      <visual name="v"><geometry><box><size>3.2 0.1 2.5</size></box></geometry><material><ambient>0.95 0.95 0.95 1</ambient></material></visual></link></model>
+    
+    <!-- ==================== FURNITURE FROM GAZEBO FUEL ==================== -->
+    <!-- Living Room -->
+    <include><name>sofa</name><pose>-1.5 1.5 0 0 0 0</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Sofa</uri></include>
+    <include><name>coffee_table</name><pose>-1.5 2.2 0 0 0 0</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Table</uri></include>
+    <include><name>tv_stand</name><pose>-2.5 2.2 0 0 0 0</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Table</uri></include>
+    <include><name>plant_living</name><pose>2.0 2.0 0 0 0 0</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Plant</uri></include>
+    
+    <!-- Kitchen -->
+    <include><name>kitchen_table</name><pose>3.0 -1.5 0 0 0 0</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Table</uri></include>
+    <include><name>chair_1</name><pose>3.0 -0.8 0 0 0 -1.57</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Chair</uri></include>
+    <include><name>chair_2</name><pose>3.8 -1.5 0 0 0 3.14</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Chair</uri></include>
+    
+    <!-- Master Bedroom -->
+    <include><name>bed_master</name><pose>-2.0 3.5 0 0 0 0</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Bed</uri></include>
+    <include><name>nightstand</name><pose>-2.8 3.5 0 0 0 0</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Table</uri></include>
+    
+    <!-- Bedroom 2 -->
+    <include><name>bed_2</name><pose>-2.0 1.2 0 0 0 0</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Bed</uri></include>
+    
+    <!-- Hallway / Common -->
+    <include><name>bookshelf</name><pose>-2.8 0 0 0 0 1.57</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Bookshelf</uri></include>
+    
   </world>
 </sdf>
