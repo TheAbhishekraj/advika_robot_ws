@@ -113,7 +113,7 @@ Files: advika_3bhk_map.yaml [YES/NO] | advika_3bhk_map.pgm [YES/NO]
 
 ```bash
 ros2 launch advika_navigation nav2.launch.py \
-  map:=~/Documents/Robotics/advika_robot_ws/maps/advika_3bhk_map.yaml
+  map:=~/advika_3bhk_map.yaml
 
 CheckPoint: F | Status: [PASS/FAIL/STUCK]
 Goals: Kitchen [YES/NO] | Bedroom [YES/NO] | Avoids Walls: [YES/NO]

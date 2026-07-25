@@ -120,6 +120,36 @@ See [SIMULATION_GUIDE.md](simulation/docs/SIMULATION_GUIDE.md) for full details.
 
 ---
 
+## 🏠 3BHK Indoor World
+
+Advika 3.0 now includes a fully furnished 3 Bedroom Hall Kitchen (3BHK) indoor environment for realistic navigation testing.
+
+### House Layout
+- **Living Room**: 6.0m × 4.5m with sofa, coffee table, TV unit
+- **Kitchen**: 3.6m × 3.0m with dining table and chairs
+- **Master Bedroom**: 4.5m × 3.6m with bed and nightstand
+- **Bedroom 2**: 3.6m × 3.0m with bed
+- **Bedroom 3**: 3.6m × 3.0m with desk and chair
+- **Hallway**: 0.6m wide connecting all rooms
+- **Bathrooms**: 2.4m × 1.8m each (2 total)
+
+### Launch 3BHK Simulation
+```bash
+ros2 launch advika_sim sim_bringup.launch.py
+```
+
+This launches:
+- Gazebo with the 3BHK house
+- Advika robot in the living room
+- RViz with complete sensor visualization
+- LiDAR, cameras, and IMU streaming
+
+### Screenshots
+![3BHK House](docs/images/3bhk_house.png)
+![Robot in Living Room](docs/images/robot_living_room.png)
+
+---
+
 ## Safety
 
 Advika implements a **multi-layer safety system**:

@@ -12,9 +12,10 @@ slam_toolbox:
     ceres_loss_function: None
 
     # ROS parameters
+    use_sim_time: true
     odom_frame: odom
     map_frame: map
-    base_frame: base_link
+    base_frame: base_footprint
     scan_topic: /advika/scan
     mode: mapping
     debug_logging: false

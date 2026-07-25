@@ -23,7 +23,7 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument(
             'map',
-            default_value=os.path.join(ws_root, 'maps', 'my_first_map.yaml'),
+            default_value=os.path.join(ws_root, 'maps', 'advika_3bhk_map.yaml'),
             description='Full path to map yaml file to load'),
         DeclareLaunchArgument(
             'use_sim_time', default_value='true',
