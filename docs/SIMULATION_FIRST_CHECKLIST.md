@@ -6,19 +6,34 @@
 
 ---
 
-## IMMEDIATE ACTION (Next 30 Minutes)
+## IMMEDIATE ACTION: STEPS 1–5 (First 15 Minutes)
 
-### Can you run Gazebo?
+Follow [SETUP.md](../SETUP.md) for full instructions:
+
 ```bash
-# Ubuntu only (not Windows)
+# Step 1: Clone repo
+git clone https://github.com/TheAbhishekraj/advika_robot_ws.git && cd advika_robot_ws
+
+# Step 2: Pull latest changes
+git pull origin main
+
+# Step 3: Check system prerequisites
+bash ~/advika_robot_ws/scripts/verify_prerequisites.sh
+
+# Step 4: Build workspace
+source /opt/ros/jazzy/setup.bash && colcon build --symlink-install && source install/setup.bash
+
+# Step 5: Run first simulation
 ros2 launch advika_sim sim_bringup.launch.py
 ```
 
-- [ ] Gazebo opens successfully
-- [ ] Robot model visible
-- [ ] No red error messages
+- [ ] Step 1 & 2: Repository updated (`git pull origin main`)
+- [ ] Step 3: All prerequisite checks passed (`verify_prerequisites.sh`)
+- [ ] Step 4: Workspace built (`colcon build`)
+- [ ] Step 5: Gazebo & RViz2 open successfully without errors
+- [ ] Robot model visible in playground
 
-If NO → Fix simulation first. Stop here. Do not pass Go.
+If NO → See [SETUP.md](../SETUP.md) or [TROUBLESHOOTING.md](../TROUBLESHOOTING.md). Stop here. Do not proceed to hardware.
 
 ---
 

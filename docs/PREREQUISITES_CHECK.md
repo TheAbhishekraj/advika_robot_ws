@@ -2,6 +2,8 @@
 
 **Version:** 1.0 | **Date:** 2026-07-25 | **Target:** Ubuntu 24.04 LTS + ROS2 Jazzy + Gazebo Harmonic
 
+> 🔴 **Master Guide:** Follow [SETUP.md](../SETUP.md) for the complete Step 1–5 workspace setup.
+
 ---
 
 ## 🚨 BEFORE STARTING - CRITICAL REQUIREMENTS

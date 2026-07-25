@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <world name="office">
+    <physics type="ode">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+    <scene>
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <background>0.85 0.85 0.9 1</background>
+      <shadows>true</shadows>
+    </scene>
+    
+    <include>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Ground Plane</uri>
+    </include>
+    
+    <!-- Office walls (8m x 8m) -->
+    <model name="office_wall_north"><static>true</static><pose>0 4 1.5 0 0 0</pose>
+      <link name="link"><collision><geometry><box><size>8 0.2 3</size></box></geometry></collision>
+      <visual><geometry><box><size>8 0.2 3</size></box></geometry><material><ambient>0.9 0.9 0.9 1</ambient></material></visual></link></model>
+    <model name="office_wall_south"><static>true</static><pose>0 -4 1.5 0 0 0</pose>
+      <link name="link"><collision><geometry><box><size>8 0.2 3</size></box></geometry></collision>
+      <visual><geometry><box><size>8 0.2 3</size></box></geometry><material><ambient>0.9 0.9 0.9 1</ambient></material></visual></link></model>
+    <model name="office_wall_east"><static>true</static><pose>4 0 1.5 0 0 0</pose>
+      <link name="link"><collision><geometry><box><size>0.2 8 3</size></box></geometry></collision>
+      <visual><geometry><box><size>0.2 8 3</size></box></geometry><material><ambient>0.9 0.9 0.9 1</ambient></material></visual></link></model>
+    <model name="office_wall_west"><static>true</static><pose>-4 0 1.5 0 0 0</pose>
+      <link name="link"><collision><geometry><box><size>0.2 8 3</size></box></geometry></collision>
+      <visual><geometry><box><size>0.2 8 3</size></box></geometry><material><ambient>0.9 0.9 0.9 1</ambient></material></visual></link></model>
+    
+    <!-- Office furniture -->
+    <include><name>desk_1</name><pose>-2 -2 0 0 0 0</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Table</uri></include>
+    <include><name>chair_1</name><pose>-2 -2.5 0 0 0 0</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Chair</uri></include>
+    <include><name>desk_2</name><pose>2 -2 0 0 0 0</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Table</uri></include>
+    <include><name>chair_2</name><pose>2 -2.5 0 0 0 0</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Chair</uri></include>
+    <include><name>conference_table</name><pose>0 2 0 0 0 0</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Table</uri></include>
+    
+    <!-- Office partitions (cubicles) -->
+    <model name="partition_1"><static>true</static><pose>-1 0 0.75 0 0 0</pose>
+      <link name="link"><collision><geometry><box><size>0.05 1.5 1.5</size></box></geometry></collision>
+      <visual><geometry><box><size>0.05 1.5 1.5</size></box></geometry><material><ambient>0.8 0.8 0.8 1</ambient></material></visual></link></model>
+    <model name="partition_2"><static>true</static><pose>1 0 0.75 0 0 0</pose>
+      <link name="link"><collision><geometry><box><size>0.05 1.5 1.5</size></box></geometry></collision>
+      <visual><geometry><box><size>0.05 1.5 1.5</size></box></geometry><material><ambient>0.8 0.8 0.8 1</ambient></material></visual></link></model>
+    
+    <light name="sun" type="directional">
+      <pose>5 5 10 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <direction>-0.5 0.1 -0.9</direction>
+      <cast_shadows>true</cast_shadows>
+    </light>
+  </world>
+</sdf>

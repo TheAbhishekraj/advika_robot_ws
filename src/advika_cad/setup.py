@@ -13,6 +13,9 @@ setup(
         ('share/' + package_name, ['package.xml']),
         # Install the CAD script itself
         (os.path.join('share', package_name, 'cad'), ['advika30_cad.py']),
+        # Install the generated STEP and STL assets!
+        (os.path.join('share', package_name, 'meshes'), glob('meshes/*.stl')),
+        (os.path.join('share', package_name, 'step'), glob('step/*.step')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

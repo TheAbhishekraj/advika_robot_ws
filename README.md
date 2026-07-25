@@ -17,6 +17,7 @@
 
 ## Table of Contents
 
+- [Setup & Master Guide](SETUP.md)
 - [Quick Start](#quick-start)
 - [System Architecture](#system-architecture)
 - [Hardware](#hardware)
@@ -52,24 +53,31 @@ python3 mcp_servers/vision_bridge.py &
 bash scripts/launch_robot.sh start
 ```
 
-### Simulation (No Hardware Required)
+### Simulation & CAD Workspace Setup (Step-by-Step Flow)
+
+> 🔴 **Full Step-by-Step Guide:** See [SETUP.md](SETUP.md) for detailed instructions.
 
 ```bash
-# Step 1 — Verify all prerequisites (Ubuntu 24.04, ROS2 Jazzy, Gazebo Harmonic, Python libs)
-bash ~/advika_robot_ws/scripts/verify_prerequisites.sh
+# Step 1 — Clone the repo
+git clone https://github.com/TheAbhishekraj/advika_robot_ws.git
+cd advika_robot_ws
 
-# Step 2 — Source ROS2 (add to ~/.bashrc to persist)
+# Step 2 — Check system prerequisites (Ubuntu 24.04, ROS2 Jazzy, Gazebo Harmonic, Python)
+bash scripts/verify_prerequisites.sh
+
+# Step 3 — Automatically Generate World-Class CAD Models (STLs & STEP)
+bash src/advika_cad/scripts/install_and_generate.sh
+
+# Step 4 — Inject CAD STLs directly into the ROS2 URDF
+python3 scripts/update_urdf.py
+
+# Step 5 — Build the workspace (now includes the generated meshes!)
 source /opt/ros/jazzy/setup.bash
-source ~/advika_robot_ws/install/setup.bash
+colcon build --symlink-install --packages-select advika_cad advika_description advika_sim
+source install/setup.bash
 
-# Step 3 — Launch full simulation stack
-ros2 launch advika_sim sim_bringup.launch.py
-
-# Open HITL dashboard
-# http://localhost:8080
-
-# Run automated test scenarios
-python3 simulation/scripts/run_scenario.py --all
+# Step 6 — Launch full simulation stack in the 3BHK Environment
+ros2 launch advika_sim sim_bringup.launch.py world_file:=3bhk_house.world
 ```
 
 ---
@@ -148,12 +156,14 @@ ros2 launch advika_sim sim_bringup.launch.py use_hitl:=true
 
 ### Key Simulation Documents
 
-| Document | Purpose |
-|----------|---------|
-| [PREREQUISITES_CHECK.md](docs/PREREQUISITES_CHECK.md) | System requirements & verification |
-| [SIMULATION_MASTER_GUIDE.md](docs/SIMULATION_MASTER_GUIDE.md) | Complete 9-week learning path |
-| [COMMANDS_REFERENCE.md](docs/COMMANDS_REFERENCE.md) | All terminal commands |
-| [AUDIT_CHECKLIST.md](docs/AUDIT_CHECKLIST.md) | External review / third-party audit |
+| Priority | Document | Purpose |
+|----------|----------|---------|
+| 🔴 **High** | [SETUP.md](SETUP.md) | **Start Here:** Step 1–5 workspace setup & phase-by-phase curriculum |
+| 🔴 **High** | [PREREQUISITES_CHECK.md](docs/PREREQUISITES_CHECK.md) | System requirements & verification check sheet |
+| 🟡 **Medium** | [SIMULATION_MASTER_GUIDE.md](docs/SIMULATION_MASTER_GUIDE.md) | Complete 9-week learning path & sensor tuning |
+| 🟡 **Medium** | [COMMANDS_REFERENCE.md](docs/COMMANDS_REFERENCE.md) | All terminal commands in one place |
+| 🟡 **Medium** | [SIMULATION_FIRST_CHECKLIST.md](docs/SIMULATION_FIRST_CHECKLIST.md) | Milestone verification checklist |
+| ⚪ **Audit** | [AUDIT_CHECKLIST.md](docs/AUDIT_CHECKLIST.md) | External review / third-party audit |
 
 > ✅ **Verified 2026-07-25:** Ubuntu 24.04 · ROS2 Jazzy · Gazebo Harmonic 8.11.0 · All Python packages · Workspace built — all checks passed.
 

@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<sdf version="1.7">
+  <model name="LivingRoom">
+    <static>true</static>
+    <!-- Simple Walls -->
+    <link name="walls">
+      <visual name="v_north"><pose>0 3 1.25 0 0 0</pose><geometry><box><size>6 0.2 2.5</size></box></geometry></visual>
+      <visual name="v_south"><pose>0 -3 1.25 0 0 0</pose><geometry><box><size>6 0.2 2.5</size></box></geometry></visual>
+      <visual name="v_east"><pose>3 0 1.25 0 0 0</pose><geometry><box><size>0.2 6 2.5</size></box></geometry></visual>
+      <visual name="v_west"><pose>-3 0 1.25 0 0 0</pose><geometry><box><size>0.2 6 2.5</size></box></geometry></visual>
+      <collision name="c_north"><pose>0 3 1.25 0 0 0</pose><geometry><box><size>6 0.2 2.5</size></box></geometry></collision>
+      <collision name="c_south"><pose>0 -3 1.25 0 0 0</pose><geometry><box><size>6 0.2 2.5</size></box></geometry></collision>
+      <collision name="c_east"><pose>3 0 1.25 0 0 0</pose><geometry><box><size>0.2 6 2.5</size></box></geometry></collision>
+      <collision name="c_west"><pose>-3 0 1.25 0 0 0</pose><geometry><box><size>0.2 6 2.5</size></box></geometry></collision>
+    </link>
+    <!-- Furniture primitives -->
+    <link name="furniture">
+      <visual name="sofa"><pose>0 1.5 0.4 0 0 0</pose><geometry><box><size>2.0 0.8 0.8</size></box></geometry><material><ambient>0.2 0.2 0.8 1</ambient></material></visual>
+      <collision name="sofa_c"><pose>0 1.5 0.4 0 0 0</pose><geometry><box><size>2.0 0.8 0.8</size></box></geometry></collision>
+      <visual name="table"><pose>0 0 0.25 0 0 0</pose><geometry><box><size>1.0 0.6 0.5</size></box></geometry><material><ambient>0.4 0.2 0.1 1</ambient></material></visual>
+      <collision name="table_c"><pose>0 0 0.25 0 0 0</pose><geometry><box><size>1.0 0.6 0.5</size></box></geometry></collision>
+    </link>
+  </model>
+</sdf>

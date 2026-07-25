@@ -26,73 +26,14 @@
 
 ## 1. PREREQUISITES CHECKLIST
 
-### Run This First - All Must Be PASS
+> 🔴 **Master Setup Guide:** Follow [SETUP.md](../SETUP.md) for the complete 5-step setup workflow.
+
+### Run This First — Verification Script
+
+Execute the automated verification script (auto-sources ROS2 Jazzy):
 
 ```bash
-# ============================================
-# PREREQUISITES VERIFICATION COMMAND
-# Run this and verify ALL checks pass
-# ============================================
-
-cat << 'EOF' > ~/verify_prerequisites.sh
-#!/bin/bash
-echo "=============================================="
-echo "ADVIKA 3.0 PREREQUISITES CHECK"
-echo "=============================================="
-
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
-
-PASS=0
-FAIL=0
-
-check() {
-    if eval "$1" &>/dev/null; then
-        echo -e "${GREEN}✅ $2${NC}"
-        ((PASS++))
-    else
-        echo -e "${RED}❌ $2${NC}"
-        ((FAIL++))
-    fi
-}
-
-# OS
-check "[[ \$(lsb_release -rs) == '24.04' ]]" "Ubuntu 24.04 LTS"
-check "[[ \$(df -h / | tail -1 | awk '{print \$4}' | sed 's/[A-Za-z]//') -gt 30 ]]" "30GB+ disk space"
-check "[[ \$(free -m | head -2 | tail -1 | awk '{print \$2}') -gt 8000 ]]" "8GB+ RAM"
-check "[[ \$(nproc) -ge 4 ]]" "4+ CPU cores"
-
-# ROS2
-check "ros2 --version &>/dev/null" "ROS2 Jazzy installed"
-check "[[ \$ROS_DISTRO == 'jazzy' ]]" "ROS distro set to jazzy"
-
-# Gazebo
-check "gz sim --version &>/dev/null" "Gazebo Harmonic installed"
-
-# Python
-for pkg in fastapi cv2 numpy yaml websockets; do
-    check "python3 -c \"import $pkg\"" "Python $pkg"
-done
-
-# Workspace
-check "[[ -d ~/advika_robot_ws/install ]]" "Workspace built"
-check "[[ -f ~/advika_robot_ws/src/advika_description/urdf/advika.urdf ]] || [[ -f ~/advika_robot_ws/simulation/urdf/advika.urdf ]]" "URDF file exists"
-
-echo ""
-echo "=============================================="
-echo "Result: $PASS passed, $FAIL failed"
-echo "=============================================="
-
-if [ $FAIL -eq 0 ]; then
-    echo -e "${GREEN}✅ READY TO LAUNCH SIMULATION!${NC}"
-else
-    echo -e "${RED}❌ FIX FAILURES BEFORE PROCEEDING${NC}"
-fi
-EOF
-chmod +x ~/verify_prerequisites.sh
-~/verify_prerequisites.sh
+bash ~/advika_robot_ws/scripts/verify_prerequisites.sh
 ```
 
 ### Expected Output (All Green Checks)
@@ -123,19 +64,27 @@ Result: 14 passed, 0 failed
 
 ---
 
-## 2. QUICK START (5 MINUTES)
+## 2. QUICK START (5-STEP FLOW)
 
-### Single Command Setup (First Time Only)
+### Master 5-Step Execution Path
 
 ```bash
-# Option A: Automated setup (recommended for first time)
-bash <(curl -fsSL https://raw.githubusercontent.com/TheAbhishekraj/advika_robot_ws/main/scripts/setup_advika.sh)
+# Step 1 — Clone the repository
+cd ~ && git clone https://github.com/TheAbhishekraj/advika_robot_ws.git && cd advika_robot_ws
 
-# Option B: If already cloned, build manually
-cd ~/advika_robot_ws
+# Step 2 — Pull latest changes
+git pull origin main
+
+# Step 3 — Run system prerequisites check
+bash ~/advika_robot_ws/scripts/verify_prerequisites.sh
+
+# Step 4 — Build workspace
 source /opt/ros/jazzy/setup.bash
 colcon build --symlink-install
 source install/setup.bash
+
+# Step 5 — Launch simulation
+ros2 launch advika_sim sim_bringup.launch.py
 ```
 
 ### Launch Simulation

@@ -1,218 +1,117 @@
-# ADVIKA 3.0 BILL OF MATERIALS (BOM)
+# ADVIKA 3.0 — BILL OF MATERIALS (BOM)
 
-**Version:** 1.0
-**Date:** 2026-07-25
-**Currency:** USD (estimate, prices may vary)
+**Version:** 1.0 | **Date:** 2026-07-25
 
 ---
 
-## PHASE 1: 3D PRINTED PARTS (DIY)
+## 📦 PRINTED PARTS (In-House / Print Service)
 
-| Part | Qty | Material | Print Time | Status | Est. Cost |
-|------|-----|----------|------------|--------|-----------|
-| Chassis Base v3 | 1 | PETG | 2.5h | Design Needed | $3-5 |
-| Wheel Hub Left | 1 | PETG | 45min | Design Needed | $1 |
-| Wheel Hub Right | 1 | PETG | 45min | Design Needed | $1 |
-| LiDAR Tower | 1 | PETG | 1.5h | Design Needed | $2 |
-| Top Dome | 1 | PETG (translucent) | 2h | Design Needed | $3 |
-| Motor Mounts | 2 | PETG | 30min each | Design Needed | $1 |
-| Battery Tray | 1 | PETG | 1h | Design Needed | $1.50 |
-| Camera Bracket | 1 | PETG | 45min | Design Needed | $1 |
-| ToF Holder | 1 | PETG | 20min | Design Needed | $0.50 |
-| Front Bumper | 1 | TPU 95A | 1h | Design Needed | $2 |
-| Rear Bumper | 1 | TPU 95A | 1h | Design Needed | $2 |
-| **SUBTOTAL** | | | **~12h** | | **~$18** |
+| # | Part Name | Qty | Material | Est. Print Time | Filament (g) |
+|---|-----------|-----|----------|-----------------|-------------|
+| A | Base Plate | 1 | PETG | 4h | 120g |
+| B | Mid Frame | 1 | PETG | 8h | 180g |
+| C | Top Cover + LiDAR Dome | 1 | PETG (clear dome) | 5h | 100g |
+| D | Motor Mount Bracket | 2 | PETG | 1h each | 30g each |
+| E | Wheel Hub | 2 | PETG | 1.5h each | 40g each |
+| F | Caster Housing | 2 | PETG | 0.5h each | 15g each |
+| G | Camera Mount — Horizon | 1 | PETG | 0.5h | 10g |
+| H | Camera Mount — Floor | 1 | PETG | 0.5h | 10g |
+| I | Battery Retainer | 1 | PETG | 0.5h | 15g |
+| J | Bumper Front/Rear | 2 | TPU 95A | 2h each | 50g each |
+| K | ToF Sensor Mount | 1 | PETG | 0.5h | 8g |
+| L | ESP32 Enclosure | 1 | PETG | 1h | 15g |
+| M | IMU Mount | 1 | PETG | 0.5h | 8g |
+| N | Gasket — Top Perimeter | 1 | TPU 95A | 0.5h | 10g |
+| O | Gasket — Pi Pad | 1 | TPU 95A | 0.3h | 5g |
+| P | Gasket — Motor Ring | 2 | TPU 95A | 0.2h each | 3g each |
+| | **TOTAL PRINT** | **20** | | **~30h** | **~740g** |
 
-**Print Settings:**
-- PETG: 250°C nozzle, 80°C bed, 30-50% infill
-- TPU 95A: 235°C nozzle, 60°C bed, 20% infill
-- All parts: 0.2mm layer height, 4 perimeters
-
----
-
-## PHASE 2: STRUCTURAL PARTS (Purchase)
-
-| Part | Qty | Est. Cost | Link/Notes |
-|------|-----|-----------|------------|
-| JGA25-370 Motors | 2 | $28-35 | with 334 PPR encoders |
-| 65mm Wheel Set | 2 | $12-18 | Compatible with JGA25 |
-| M3 Brass Threaded Inserts | 20pcs | $5 | For chassis mounting |
-| M3 × 8mm screws | 20pcs | $2 | For motor mounts |
-| M3 × 12mm screws | 10pcs | $1 | For general assembly |
-| M2.5 Standoffs | 4pcs | $2 | For RPi mounting |
-| 6mm D-Shaft (100mm) | 1 | $3 | For wheel hub interface |
-| **SUBTOTAL** | | **$53-66** | |
+### Filament Cost Estimate
+| Filament | Amount | Cost (approx) |
+|----------|--------|---------------|
+| PETG (any color) | ~600g (1 roll) | ₹1,200 / $15 |
+| TPU 95A | ~125g (partial roll) | ₹800 / $10 |
+| Clear PETG (dome) | ~30g (partial roll) | ₹300 / $4 |
+| **Filament Total** | | **₹2,300 / ~$29** |
 
 ---
 
-## PHASE 3: ELECTRONICS
+## ⚡ ELECTRONIC COMPONENTS
 
-### Compute
-| Part | Qty | Est. Cost | Notes |
-|------|-----|-----------|-------|
-| Raspberry Pi 5 (8GB) | 1 | $80 | Essential |
-| 32GB microSD Card | 1 | $10 | Class 10, A2 |
-| USB-C Power Supply (5A) | 1 | $15 | For Pi 5 |
-
-### Motor Controller
-| Part | Qty | Est. Cost | Notes |
-|------|-----|-----------|-------|
-| ESP32-S3 DevKit C1 | 1 | $15 | Or M5Stack AtomS3 |
-| USB-C Cable | 1 | $5 | |
-| Logic Level Shifter | 2 | $3 | 3.3V ↔ 5V |
-
-### Sensors
-| Part | Qty | Est. Cost | Notes |
-|------|-----|-----------|-------|
-| LD06 LiDAR | 1 | $55-70 | 360° 12m range |
-| VL53L5CX ToF Array | 1 | $35-45 | 8×8 array |
-| BNO055 IMU | 1 | $15 | 9-axis |
-| SSD1306 OLED 128×64 | 1 | $8 | I2C display |
-
-### Cameras
-| Part | Qty | Est. Cost | Notes |
-|------|-----|-----------|-------|
-| Raspberry Pi Camera Module 3 Wide | 2 | $50 | 120° FOV each |
-| Camera Cables (150mm) | 2 | $5 | FPC extension |
-
-### Power
-| Part | Qty | Est. Cost | Notes |
-|------|-----|-----------|-------|
-| 3S 5000mAh LiPo Battery | 1 | $30 | With XT60 connector |
-| 3S BMS Board | 1 | $10 | Battery protection |
-| Step-Up Converter (5V/3A) | 1 | $8 | For electronics |
-| XT60 Connectors | 2 | $3 | Power connections |
-| JST-XH Balance Connector | 1 | $2 | For charger |
-
-**ELECTRONICS SUBTOTAL:** ~$309-362
+| Component | Model | Qty | Price (INR) | Price (USD) | Supplier |
+|-----------|-------|-----|-------------|-------------|----------|
+| Compute Board | Raspberry Pi 5 (8GB) | 1 | ₹6,500 | $80 | raspberrypi.com / Robu.in |
+| Motor Controller | ESP32-S3 DevKitC-1 | 1 | ₹1,200 | $15 | Robu.in / Amazon |
+| H-Bridge Driver | DRV8833 Dual Motor Driver | 1 | ₹250 | $3 | Amazon / Robu.in |
+| DC Motors | JGA25-370 (170RPM, 334PPR) | 2 | ₹1,200 | $15 ea. | Amazon / AliExpress |
+| LiDAR | LD06 (360°, 12m, 10Hz) | 1 | ₹4,500 | $55 | AliExpress / Robu.in |
+| ToF Sensor | VL53L5CX (8×8 array, 4m) | 2 | ₹1,500 | $18 ea. | Mouser / DigiKey |
+| Cameras | Pi Camera Module 3 Wide | 2 | ₹1,600 | $20 ea. | raspberrypi.com |
+| IMU | BNO055 9-DOF | 1 | ₹1,800 | $22 | Adafruit / Mouser |
+| Battery | 3S2P 18650 Li-Ion (11.1V 5200mAh, BMS) | 1 | ₹2,400 | $30 | AliExpress / Amazon |
+| OLED Display | SSD1306 128×64 I2C | 1 | ₹200 | $2.50 | Amazon |
+| LED Ring | WS2812B 24-LED (80mm) | 2 | ₹400 | $5 ea. | AliExpress |
+| Speaker | 4Ω 3W Mini Speaker (28mm) | 1 | ₹100 | $1.50 | Amazon |
+| E-Stop | 16mm Latching Button (NC) | 1 | ₹150 | $2 | Amazon |
+| Power Connector | XT60 Pair | 1 | ₹80 | $1 | Amazon |
+| Balance Connector | JST-XH 4-pin | 1 | ₹30 | $0.50 | Amazon |
+| Casters | 15mm Ball Caster | 2 | ₹200 | $2.50 ea. | Amazon |
+| **Electronics Total** | | | **₹23,810** | **~$295** | |
 
 ---
 
-## PHASE 4: CASES & ENCLOSURES
+## 🔩 FASTENERS & HARDWARE
 
-| Part | Qty | Est. Cost | Notes |
-|------|-----|-----------|-------|
-| ESP32 Enclosure | 1 | Print yourself | PETG |
-| LiDAR Mount | 1 | Print yourself | PETG |
-| Display Bezel | 1 | Print yourself | PETG |
-| Cable Management Clips | 10 | Print yourself | PETG |
-
----
-
-## PHASE 5: TOOLS (If Not Owned)
-
-| Part | Est. Cost | Notes |
-|------|-----------|-------|
-| Calipers (digital) | $15-25 | Essential for verification |
-| Screwdriver Set | $10 | M2, M2.5, M3, M4 |
-| Soldering Iron | $20 | For connectors |
-| Wire Strippers | $8 | |
-| Multimeter | $20 | |
-| Heat Shrink Tubing Set | $5 | |
-
-**TOOLS SUBTOTAL:** ~$78-93 (if buying everything)
+| Item | Qty | Price (INR) | Price (USD) |
+|------|-----|-------------|-------------|
+| M3 Brass Heat-Set Threaded Insert (4.2mm OD, 3.5mm deep) | 40 | ₹400 | $5 |
+| M3 × 8mm SHCS (Socket Head Cap Screw) | 20 | ₹100 | $1.50 |
+| M3 × 12mm SHCS | 10 | ₹60 | $0.80 |
+| M3 × 16mm SHCS | 5 | ₹40 | $0.50 |
+| M2.5 × 6mm SHCS | 8 | ₹50 | $0.60 |
+| M4 × 20mm Shoulder Bolt | 8 | ₹200 | $2.50 |
+| M4 Compression Spring (10mm free length) | 8 | ₹150 | $2 |
+| 10mm M2.5 Aluminum Standoff (M/F) | 8 | ₹120 | $1.50 |
+| Zip ties (100mm) | 20 | ₹50 | $0.60 |
+| Heat shrink tubing (assorted) | 1 set | ₹100 | $1.50 |
+| **Fasteners Total** | | **₹1,270** | **~$16.50** |
 
 ---
 
-## GRAND TOTAL SUMMARY
+## 💰 TOTAL COST SUMMARY
 
-| Category | Min Cost | Max Cost |
-|----------|----------|----------|
-| 3D Printed Parts | $18 | $18 |
-| Structural Parts | $53 | $66 |
-| Electronics | $309 | $362 |
-| Cases/Enclosures | $0 | $0 (print yourself) |
-| Tools | $78 | $93 |
-| **GRAND TOTAL** | **$458** | **$539** |
+| Category | INR | USD |
+|----------|-----|-----|
+| 🖨️ Filament (PETG + TPU) | ₹2,300 | $29 |
+| ⚡ Electronics | ₹23,810 | $295 |
+| 🔩 Fasteners & Hardware | ₹1,270 | $16.50 |
+| **GRAND TOTAL** | **₹27,380** | **~$340** |
 
----
-
-## RECOMMENDED: STARTUP BUDGET (Simulation Validated)
-
-Before buying everything, start with:
-
-### Minimum Viable Robot ($180)
-| Part | Cost |
-|------|------|
-| Raspberry Pi 5 (8GB) | $80 |
-| ESP32-S3 DevKit | $15 |
-| LD06 LiDAR | $60 |
-| 3S Battery + BMS | $25 |
-| **Total** | **$180** |
-
-This lets you:
-- Build robot chassis
-- Test locomotion
-- Run SLAM
-- Validate sensors
-
-### Full Build ($458-539)
-Add cameras, ToF, IMU, display for complete functionality.
+> **Note:** Prices are approximate as of July 2026. Actual costs may vary by region and supplier. Bulk ordering (10+ of same fastener) reduces per-unit cost significantly.
 
 ---
 
-## SUPPLIER RECOMMENDATIONS
+## 📋 Ordering Checklist
 
-### Electronics
-| Part | Supplier | Notes |
-|------|----------|-------|
-| Raspberry Pi | raspberrypi.com | Official |
-| ESP32 | amazon.com or maker店 | |
-| LD06 LiDAR | Amazon or Aliexpress | "YDLIDAR X4" or "LD06" |
-| VL53L5CX | Adafruit or SparkFun | |
-| Batteries | CNHL or CNB (Amazon) | 3S 5000mAh |
-
-### 3D Printing
-| Service | Notes |
-|---------|-------|
-| JLCPCB | $2-5 per part, 1-2 week delivery |
-| Treatstock | Online quote tool |
-| Local Library | Often free maker spaces |
-| Buy Ender 3 V3 KE | ~$200, own printer |
-
-### Hardware
-| Item | Supplier |
-|------|----------|
-| Motors, Wheels | Amazon or Aliexpress |
-| Fasteners | McMaster-Carr or local hardware store |
-| Brass Inserts | Amazon (M3 brass heat set) |
-
----
-
-## PURCHASE ORDER (Recommended)
-
-### First Order (Chassis Build)
-1. Raspberry Pi 5 8GB - $80
-2. ESP32-S3 - $15
-3. JGA25-370 Motors ×2 - $30
-4. Wheels ×2 - $15
-5. 3S Battery - $30
-6. M3 screws/inserts - $10
-7. Power supply - $15
-**Subtotal: ~$195**
-
-### Second Order (Sensors)
-1. LD06 LiDAR - $60
-2. VL53L5CX - $40
-3. Cameras ×2 - $50
-**Subtotal: ~$150**
-
-### Third Order (Fine-Tuning)
-1. BNO055 IMU - $15
-2. SSD1306 Display - $8
-3. Additional cables, connectors - $20
-**Subtotal: ~$43**
-
----
-
-## ✅ BEFORE PURCHASING
-
-1. ✅ Complete simulation validation (Gazebo works)
-2. ✅ Design and print all CAD parts
-3. ✅ Test fit components physically
-4. ✅ Verify budget available
-
----
-
-*Remember: Complete simulation and design FIRST*
-*BOM Date: 2026-07-25 - Check prices before ordering*
+- [ ] Raspberry Pi 5 (8GB)
+- [ ] ESP32-S3 DevKitC-1
+- [ ] DRV8833 Motor Driver
+- [ ] JGA25-370 Motors ×2
+- [ ] LD06 LiDAR
+- [ ] VL53L5CX ToF Sensors ×2
+- [ ] Pi Camera Module 3 Wide ×2
+- [ ] BNO055 IMU
+- [ ] 3S2P 18650 Battery Pack
+- [ ] SSD1306 OLED Display
+- [ ] WS2812B LED Rings ×2
+- [ ] Mini Speaker
+- [ ] E-Stop Button
+- [ ] XT60 + JST-XH Connectors
+- [ ] 15mm Ball Casters ×2
+- [ ] M3 Heat-Set Inserts (pack of 50)
+- [ ] M3 SHCS Assorted Kit
+- [ ] M2.5 SHCS + Standoffs
+- [ ] M4 Shoulder Bolts + Springs
+- [ ] PETG Filament (1kg roll)
+- [ ] TPU 95A Filament (500g roll)
+- [ ] Clear PETG (250g or shared roll)

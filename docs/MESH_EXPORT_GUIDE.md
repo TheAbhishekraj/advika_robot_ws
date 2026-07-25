@@ -1,408 +1,184 @@
-# MESH EXPORT GUIDE
+# ADVIKA 3.0 — MESH EXPORT GUIDE (STL → DAE → URDF)
 
-**Purpose:** Export STL/DAE meshes from Fusion 360 and integrate into URDF
-**Platform:** Windows with Fusion 360
-**Date:** 2026-07-25
+**Version:** 1.0 | **Date:** 2026-07-25
 
 ---
 
-## 1. STL EXPORT FROM FUSION 360
+## 📋 Overview
 
-### 1.1 Single Part Export
-
-```
-1. Open component in Fusion 360
-2. Right-click body in browser → "Save as STL"
-3. Or: File → Export → STL
-
-STL Settings:
-├── Units: Millimeters
-├── Resolution: High (0.01mm)
-└── Output: Binary STL
-
-Save location:
-src/advika_cad/meshes/{Component}_v{n}_{date}.stl
-```
-
-### 1.2 Full Assembly Export
+This guide covers converting FreeCAD/CadQuery STL meshes to Gazebo-compatible DAE (Collada) format and integrating them into the Advika URDF robot description.
 
 ```
-1. Open assembly
-2. Activate top-level assembly
-3. File → Export → STL
-4. Select "All components as single file"
-5. Or "Each component as separate file"
-
-For single file:
-└── advika_full_robot_v1_20260725.stl
-
-For multiple files:
-├── Chassis_Base_v3.stl
-├── Wheel_Hub_Left_v1.stl
-├── Wheel_Hub_Right_v1.stl
-├── LiDAR_Tower_v2.stl
-└── ...
-```
-
-### 1.3 STL Quality Settings
-
-```
-High Quality (Recommended for 3D Printing):
-├── Surface Deviation: 0.01 mm
-├── Normal Deviation: 0.05 deg
-└── Maximum Aspect Ratio: 100:1
-
-Standard Quality (for URDF visualization):
-├── Surface Deviation: 0.05 mm
-├── Normal Deviation: 0.1 deg
-└── Maximum Aspect Ratio: 50:1
-
-Fast Preview (for testing):
-├── Surface Deviation: 0.1 mm
-├── Normal Deviation: 0.5 deg
-└── Maximum Aspect Ratio: 20:1
+FreeCAD (.FCStd)  →  STL (.stl)  →  DAE (.dae)  →  URDF <mesh>
+     ↓                  ↓              ↓
+  Parametric         3D Print      Gazebo Sim
 ```
 
 ---
 
-## 2. STEP FILE EXPORT
+## Step 1: Generate STL Files
 
-### 2.1 Single Part STEP
+```bash
+# Run the generation script
+bash ~/advika_robot_ws/src/advika_cad/scripts/generate_all.sh
 
-```
-1. Open component
-2. File → Export → STEP
-3. Settings:
-   ├── Format: STEP
-   ├── Units: Millimeters
-   ├── Scheme: AP214 (automotive)
-   └── Include: Active component only
-```
-
-### 2.2 Assembly STEP
-
-```
-1. Open assembly
-2. File → Export → STEP
-3. Settings:
-   ├── Format: STEP
-   ├── Units: Millimeters
-   ├── Scheme: AP214
-   └── Include: All components as:
-       - Single compound (for vendor)
-       - Multiple files (for collaboration)
-
-Output naming:
-├── Advika_Chassis_Assembly_v3.step
-├── Advika_Sensor_Module_v2.step
-└── Advika_Full_Robot_v1.step
+# Output: src/advika_cad/meshes/advika30_*.stl
 ```
 
 ---
 
-## 3. CONVERT STL TO DAE FOR GAZEBO
+## Step 2: Convert STL → DAE (Collada)
 
-### 3.1 Using Blender (Recommended)
+### Option A: Using Blender (Recommended)
 
-Blender has better material support for Gazebo.
+```bash
+# Install Blender
+sudo apt install blender
 
-```
-1. Open Blender
-2. File → Import → STL
-3. Select your STL file
-4. Fix normals: Select mesh → Mesh → Normals → Recalculate Outside
-5. File → Export → Collada DAE
-6. Settings:
-   ├── Include: Selected Objects
-   ├── Transformation: Apply Transform
-   └── Apply Scale: FBX All
-7. Save as {component}.dae
-```
+# Batch convert all STL to DAE
+cd ~/advika_robot_ws/src/advika_cad/meshes
 
-### 3.2 Using MeshLab
-
-```
-1. Open MeshLab
-2. File → Import Mesh
-3. Filters → Normals, Curvatures and Orientation → Compute normals
-4. File → Export Mesh As → DAE
+for stl in advika30_*.stl; do
+    dae="${stl%.stl}.dae"
+    blender --background --python-expr "
+import bpy
+bpy.ops.wm.read_homefile(use_empty=True)
+bpy.ops.import_mesh.stl(filepath='$(pwd)/$stl')
+bpy.ops.wm.collada_export(filepath='$(pwd)/$dae')
+" 2>/dev/null
+    echo "✅ $stl → $dae"
+done
 ```
 
-### 3.3 Using CloudCompare
+### Option B: Using MeshLab
 
+```bash
+# Install MeshLab
+sudo apt install meshlab
+
+# Convert single file
+meshlabserver -i input.stl -o output.dae
 ```
-1. Open CloudCompare
-2. File → Open → Select STL
-3. Edit → Merge
-4. File → Export → Collada (DAE)
+
+### Option C: Using ctmconv (lightweight)
+
+```bash
+pip install trimesh
+python3 -c "
+import trimesh, glob, os
+for stl in glob.glob('*.stl'):
+    mesh = trimesh.load(stl)
+    dae = stl.replace('.stl', '.dae')
+    mesh.export(dae, file_type='collada')
+    print(f'✅ {stl} → {dae}')
+"
 ```
 
 ---
 
-## 4. URDF MESH INTEGRATION
+## Step 3: Organize Mesh Files
 
-### 4.1 Directory Structure
+```bash
+# Create meshes directory in advika_description
+mkdir -p ~/advika_robot_ws/src/advika_description/meshes/visual
+mkdir -p ~/advika_robot_ws/src/advika_description/meshes/collision
 
-```
-src/advika_cad/
-├── meshes/
-│   ├── base_link.stl
-│   ├── chassis_v3.stl
-│   ├── wheel_hub_left.stl
-│   └── ...
-├── step/
-│   └── assembly.step
-└── advika_cad/
-    └── __init__.py
+# Copy visual meshes (DAE — textured, detailed)
+cp ~/advika_robot_ws/src/advika_cad/meshes/*.dae \
+   ~/advika_robot_ws/src/advika_description/meshes/visual/
 
-simulation/urdf/
-├── advika.urdf
-└── meshes/
-    └── base_link.stl  (copy of advika_cad/meshes/)
+# Copy collision meshes (STL — simplified, faster physics)
+cp ~/advika_robot_ws/src/advika_cad/meshes/*.stl \
+   ~/advika_robot_ws/src/advika_description/meshes/collision/
 ```
 
-### 4.2 Package.xml Configuration
+---
 
-Add to `src/advika_cad/package.xml`:
+## Step 4: Update URDF with Mesh References
 
+Replace primitive geometry `<box>` / `<cylinder>` with `<mesh>` tags:
+
+### Before (primitive geometry):
 ```xml
-<export>
-  <build_type>ament_python</build_type>
-  <exec_depend>rviz_common</exec_depend>
-  <exec_depend>robot_state_publisher</exec_depend>
-</export>
-```
-
-### 4.3 Update URDF Visual
-
-```xml
-<!-- Before (primitive geometry) -->
 <link name="base_link">
   <visual>
-    <origin xyz="0 0 0.075" rpy="0 0 0"/>
     <geometry>
-      <box size="0.30 0.24 0.15"/>
+      <box size="0.300 0.240 0.005"/>
     </geometry>
-    <material name="blue"/>
+    <material name="blue">
+      <color rgba="0.1 0.3 0.8 1.0"/>
+    </material>
   </visual>
-</link>
-
-<!-- After (mesh geometry) -->
-<link name="base_link">
-  <visual>
-    <origin xyz="0 0 0.075" rpy="0 0 0"/>
-    <geometry>
-      <mesh filename="package://advika_cad/meshes/chassis_v3.stl"/>
-    </geometry>
-    <material name="blue"/>
-  </visual>
-</link>
-```
-
-### 4.4 Update URDF Collision
-
-```xml
-<link name="base_link">
   <collision>
-    <origin xyz="0 0 0.075" rpy="0 0 0"/>
     <geometry>
-      <mesh filename="package://advika_cad/meshes/chassis_v3.stl"/>
+      <box size="0.300 0.240 0.005"/>
     </geometry>
   </collision>
 </link>
 ```
 
-### 4.5 Launch File Configuration
-
-Ensure the URDF package is properly sourced in your launch file:
-
-```python
-# In sim_bringup.launch.py
-def generate_launch_description():
-    # Use package share directory for mesh paths
-    advika_cad_dir = get_package_share_directory('advika_cad')
-    chassis_mesh = os.path.join(advika_cad_dir, 'meshes', 'chassis_v3.stl')
-
-    # Or use 'package://' URI directly in URDF
-    # package://advika_cad/meshes/chassis_v3.stl
-```
-
----
-
-## 5. GAZEBO VISUAL MATERIALS
-
-### 5.1 Simple Color Material
-
+### After (mesh geometry):
 ```xml
 <link name="base_link">
   <visual>
     <geometry>
-      <mesh filename="package://advika_cad/meshes/chassis_v3.stl"/>
+      <mesh filename="package://advika_description/meshes/visual/advika30_base_plate.dae"
+            scale="0.001 0.001 0.001"/>
     </geometry>
-    <material>
-      <ambient>0.1 0.3 0.8 1.0</ambient>  <!-- RGB + Alpha -->
-      <diffuse>0.1 0.3 0.8 1.0</diffuse>
-      <specular>0.05 0.05 0.05 1.0</specular>
-      <emissive>0 0 0 0</emissive>
-    </material>
   </visual>
-</link>
-```
-
-### 5.2 Gazebo Material Tag
-
-```xml
-<gazebo reference="base_link">
-  <material>Gazebo/Blue</material>
-  <!-- Or custom material from Gazebo library -->
-  <mu1>0.5</mu1>
-  <mu2>0.5</mu2>
-</gazebo>
-```
-
-### 5.3 Transparent Material
-
-```xml
-<link name="top_dome">
-  <visual>
+  <collision>
     <geometry>
-      <mesh filename="package://advika_cad/meshes/dome_v1.stl"/>
+      <mesh filename="package://advika_description/meshes/collision/advika30_base_plate.stl"
+            scale="0.001 0.001 0.001"/>
     </geometry>
-    <material>
-      <ambient>0.9 0.9 0.9 0.3</ambient>  <!-- Alpha = 0.3 -->
-      <diffuse>0.9 0.9 0.9 0.3</diffuse>
-    </material>
-  </visual>
+  </collision>
 </link>
 ```
 
+> **Important:** STL/DAE files are in **millimeters**. URDF expects **meters**.
+> Use `scale="0.001 0.001 0.001"` to convert mm → m.
+
 ---
 
-## 6. COMMON ISSUES & FIXES
+## Step 5: Mesh-to-Link Mapping
 
-### 6.1 Mesh Not Found
+| URDF Link | Visual Mesh (DAE) | Collision Mesh (STL) |
+|-----------|-------------------|----------------------|
+| `base_link` | `advika30_base_plate.dae` | `advika30_base_plate.stl` |
+| `mid_frame_link` | `advika30_mid_frame.dae` | `advika30_mid_frame.stl` |
+| `top_cover_link` | `advika30_top_cover.dae` | `advika30_top_cover.stl` |
+| `left_wheel_link` | `advika30_wheel_hub_L.dae` | `advika30_wheel_hub_L.stl` |
+| `right_wheel_link` | `advika30_wheel_hub_R.dae` | `advika30_wheel_hub_R.stl` |
+| `lidar_link` | (sensor only — no CAD mesh) | — |
+| `horizon_camera_link` | `advika30_camera_mount_front.dae` | `advika30_camera_mount_front.stl` |
+| `floor_camera_link` | `advika30_camera_mount_floor.dae` | `advika30_camera_mount_floor.stl` |
+| `bumper_front_link` | `advika30_bumper_front.dae` | `advika30_bumper_front.stl` |
+| `bumper_rear_link` | `advika30_bumper_rear.dae` | `advika30_bumper_rear.stl` |
 
-```
-Error: "[Err] [MeshManager.cc:XXX] Unable to find file"
+---
 
-Solution:
-1. Verify path: package://advika_cad/meshes/file.stl
-2. Check file exists in src/advika_cad/meshes/
-3. Rebuild package: colcon build --packages-select advika_cad
-4. Source setup.bash: source install/setup.bash
-```
+## Step 6: Verify in Gazebo
 
-### 6.2 Mesh Scale Issues
+```bash
+# Rebuild workspace
+cd ~/advika_robot_ws
+colcon build --packages-select advika_description advika_sim
+source install/setup.bash
 
-```
-Error: Mesh appears tiny or huge in Gazebo
+# Launch simulation
+ros2 launch advika_sim sim_bringup.launch.py
 
-Solution:
-1. Fusion 360 exports in mm by default
-2. Gazebo URDF may need scale adjustment:
-   <mesh filename="..." scale="0.001 0.001 0.001"/>
-3. Or resize in Fusion 360 before export
-```
-
-### 6.3 Inverted Normals
-
-```
-Error: Mesh appears black/hole-filled in Gazebo
-
-Solution:
-1. Fix in Blender:
-   - Import STL
-   - Select mesh
-   - Mesh → Normals → Recalculate Outside
-   - Flip normals if needed
-   - Export as DAE
-```
-
-### 6.4 Non-Manifold Mesh
-
-```
-Error: "Mesh is not valid for collision"
-
-Solution:
-1. Repair in MeshLab:
-   - Filters → Remeshing → Quadratic Edge Collapse
-   - Or: Filters → Mesh Layer → Remove Duplicate Faces
-2. Repair in Blender:
-   - Edit Mode → Select All
-   - Mesh → Clean Up → Make Manifold
-3. Use netfabb service (online repair)
+# Verify: robot model uses CAD meshes (not primitive boxes)
 ```
 
 ---
 
-## 7. BATCH CONVERSION SCRIPT
+## ⚠️ Common Issues
 
-Create `scripts/convert_meshes.py`:
-
-```python
-#!/usr/bin/env python3
-"""Convert STL to DAE for Gazebo integration."""
-
-import os
-import subprocess
-import sys
-
-def convert_stl_to_dae(stl_path, dae_path):
-    """Convert STL to DAE using Blender headless."""
-    blender_script = f"""
-import bpy
-bpy.ops.import_mesh.stl(filepath='{stl_path}')
-bpy.ops.object.select_all(action='SELECT')
-bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY')
-bpy.ops.export_anim.dae(filepath='{dae_path}', export_eval={1})
-"""
-    subprocess.run([
-        'blender',
-        '--background',
-        '--python-expr', blender_script
-    ])
-
-def main():
-    meshes_dir = 'src/advika_cad/meshes'
-    for stl_file in os.listdir(meshes_dir):
-        if stl_file.endswith('.stl'):
-            stl_path = os.path.join(meshes_dir, stl_file)
-            dae_file = stl_file.replace('.stl', '.dae')
-            dae_path = os.path.join(meshes_dir, dae_file)
-            print(f"Converting {stl_file} -> {dae_file}")
-            convert_stl_to_dae(stl_path, dae_path)
-
-if __name__ == '__main__':
-    main()
-```
-
----
-
-## 8. VERIFICATION CHECKLIST
-
-- [ ] STL files export successfully from Fusion 360
-- [ ] Mesh dimensions match original design (measure in mm)
-- [ ] STL files copied to `src/advika_cad/meshes/`
-- [ ] URDF updated with `package://` mesh paths
-- [ ] Launch file sources `advika_cad` package
-- [ ] Gazebo displays mesh correctly
-- [ ] No console errors about missing meshes
-- [ ] Collision geometry matches visual mesh
-- [ ] Normals are correct (not inverted)
-
----
-
-## 9. QUICK REFERENCE
-
-| Task | Tool | Command/Steps |
-|------|------|---------------|
-| Export STL | Fusion 360 | File → Export → STL |
-| Export STEP | Fusion 360 | File → Export → STEP |
-| STL → DAE | Blender | Import STL, Export DAE |
-| Verify mesh | MeshLab | File → Import → check errors |
-| Test in URDF | Terminal | ros2 launch advika_sim sim_bringup.launch.py |
-| Fix normals | Blender | Mesh → Normals → Recalculate Outside |
-
----
-
-*End of Mesh Export Guide*
+| Problem | Solution |
+|---------|----------|
+| Mesh not visible in Gazebo | Check `package://` path and `scale` attribute |
+| Mesh upside down | Adjust URDF `<origin rpy=.../>` inside `<visual>` |
+| Mesh offset from joint | Adjust `<origin xyz=.../>` inside `<visual>` |
+| Collision too detailed (slow) | Use simplified STL for `<collision>`, detailed DAE for `<visual>` |
+| Model explodes in simulation | Ensure inertial properties match new geometry |

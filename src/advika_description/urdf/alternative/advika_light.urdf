@@ -21,7 +21,7 @@
   <link name="base_link">
     <visual><origin xyz="0 0 0.075" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_base_plate.stl"/></geometry><material name="blue"/></visual>
     <collision><origin xyz="0 0 0.075" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_base_plate.stl"/></geometry></collision>
-    <inertial><origin xyz="0 0 0.075" rpy="0 0 0"/><mass value="2.0"/><inertia ixx="0.0125" ixy="0" ixz="0" iyy="0.0165" iyz="0" izz="0.0245"/></inertial>
+    <inertial><origin xyz="0 0 0.075" rpy="0 0 0"/><mass value="1.0"/><inertia ixx="0.0125" ixy="0" ixz="0" iyy="0.0165" iyz="0" izz="0.0245"/></inertial>
   
     <visual><origin xyz="0 0 0" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_mid_frame.stl"/></geometry><material name="blue"/></visual>
     <visual><origin xyz="0.130 0 0.03" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_bumper_front.stl"/></geometry><material name="red"/></visual>

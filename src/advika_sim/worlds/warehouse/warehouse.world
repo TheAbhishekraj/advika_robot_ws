@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <world name="warehouse">
+    <physics type="ode">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+    <scene>
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <background>0.2 0.2 0.25 1</background>
+      <shadows>true</shadows>
+    </scene>
+    
+    <!-- Large open warehouse floor -->
+    <include>
+      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Ground Plane</uri>
+    </include>
+    
+    <!-- Warehouse walls (20m x 20m) -->
+    <model name="warehouse_wall_north"><static>true</static><pose>0 10 2 0 0 0</pose>
+      <link name="link"><collision><geometry><box><size>20 0.2 4</size></box></geometry></collision>
+      <visual><geometry><box><size>20 0.2 4</size></box></geometry><material><ambient>0.85 0.85 0.85 1</ambient></material></visual></link></model>
+    
+    <model name="warehouse_wall_south"><static>true</static><pose>0 -10 2 0 0 0</pose>
+      <link name="link"><collision><geometry><box><size>20 0.2 4</size></box></geometry></collision>
+      <visual><geometry><box><size>20 0.2 4</size></box></geometry><material><ambient>0.85 0.85 0.85 1</ambient></material></visual></link></model>
+    
+    <model name="warehouse_wall_east"><static>true</static><pose>10 0 2 0 0 0</pose>
+      <link name="link"><collision><geometry><box><size>0.2 20 4</size></box></geometry></collision>
+      <visual><geometry><box><size>0.2 20 4</size></box></geometry><material><ambient>0.85 0.85 0.85 1</ambient></material></visual></link></model>
+    
+    <model name="warehouse_wall_west"><static>true</static><pose>-10 0 2 0 0 0</pose>
+      <link name="link"><collision><geometry><box><size>0.2 20 4</size></box></geometry></collision>
+      <visual><geometry><box><size>0.2 20 4</size></box></geometry><material><ambient>0.85 0.85 0.85 1</ambient></material></visual></link></model>
+    
+    <!-- Shelving units -->
+    <model name="shelf_1"><static>true</static><pose>-5 -5 0.5 0 0 0</pose>
+      <link name="link"><collision><geometry><box><size>2 1 2</size></box></geometry></collision>
+      <visual><geometry><box><size>2 1 2</size></box></geometry><material><ambient>0.7 0.6 0.5 1</ambient></material></visual></link></model>
+    <model name="shelf_2"><static>true</static><pose>5 -5 0.5 0 0 0</pose>
+      <link name="link"><collision><geometry><box><size>2 1 2</size></box></geometry></collision>
+      <visual><geometry><box><size>2 1 2</size></box></geometry><material><ambient>0.7 0.6 0.5 1</ambient></material></visual></link></model>
+    <model name="shelf_3"><static>true</static><pose>-5 5 0.5 0 0 0</pose>
+      <link name="link"><collision><geometry><box><size>2 1 2</size></box></geometry></collision>
+      <visual><geometry><box><size>2 1 2</size></box></geometry><material><ambient>0.7 0.6 0.5 1</ambient></material></visual></link></model>
+    <model name="shelf_4"><static>true</static><pose>5 5 0.5 0 0 0</pose>
+      <link name="link"><collision><geometry><box><size>2 1 2</size></box></geometry></collision>
+      <visual><geometry><box><size>2 1 2</size></box></geometry><material><ambient>0.7 0.6 0.5 1</ambient></material></visual></link></model>
+    
+    <!-- Cones for navigation testing -->
+    <model name="cone_1"><static>true</static><pose>-3 0 0.25 0 0 0</pose>
+      <link name="link"><collision><geometry><cone><radius>0.2</radius><length>0.5</length></cone></geometry></collision>
+      <visual><geometry><cone><radius>0.2</radius><length>0.5</length></cone></geometry><material><ambient>1 0.5 0 1</ambient></material></visual></link></model>
+    <model name="cone_2"><static>true</static><pose>0 3 0.25 0 0 0</pose>
+      <link name="link"><collision><geometry><cone><radius>0.2</radius><length>0.5</length></cone></geometry></collision>
+      <visual><geometry><cone><radius>0.2</radius><length>0.5</length></cone></geometry><material><ambient>1 0.5 0 1</ambient></material></visual></link></model>
+    <model name="cone_3"><static>true</static><pose>3 0 0.25 0 0 0</pose>
+      <link name="link"><collision><geometry><cone><radius>0.2</radius><length>0.5</length></cone></geometry></collision>
+      <visual><geometry><cone><radius>0.2</radius><length>0.5</length></cone></geometry><material><ambient>1 0.5 0 1</ambient></material></visual></link></model>
+    
+    <light name="sun" type="directional">
+      <pose>5 5 10 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <direction>-0.5 0.1 -0.9</direction>
+      <cast_shadows>true</cast_shadows>
+    </light>
+    
+    <!-- Warehouse industrial lights -->
+    <light name="light_1" type="point">
+      <pose>0 0 3 0 0 0</pose>
+      <diffuse>0.9 0.9 0.85 1</diffuse>
+      <attenuation><range>10</range><constant>0.5</constant><linear>0.01</linear><quadratic>0.001</quadratic></attenuation>
+    </light>
+  </world>
+</sdf>
