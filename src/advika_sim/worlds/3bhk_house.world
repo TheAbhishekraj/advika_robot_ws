@@ -17,9 +17,30 @@
     </scene>
     
     <!-- Ground -->
-    <include>
-      <uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Ground Plane</uri>
-    </include>
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane><normal>0 0 1</normal><size>100 100</size></plane>
+          </geometry>
+          <surface>
+            <friction>
+              <ode><mu>100</mu><mu2>50</mu2></ode>
+            </friction>
+          </surface>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <plane><normal>0 0 1</normal><size>100 100</size></plane>
+          </geometry>
+          <material>
+            <ambient>0.8 0.8 0.8 1</ambient>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
     
     <!-- Sun -->
     <light name="sun" type="directional">
@@ -100,26 +121,7 @@
       <visual name="v"><geometry><box><size>3.2 0.1 2.5</size></box></geometry><material><ambient>0.95 0.95 0.95 1</ambient></material></visual></link></model>
     
     <!-- ==================== FURNITURE FROM GAZEBO FUEL ==================== -->
-    <!-- Living Room -->
-    <include><name>sofa</name><pose>-1.5 1.5 0 0 0 0</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Sofa</uri></include>
-    <include><name>coffee_table</name><pose>-1.5 2.2 0 0 0 0</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Table</uri></include>
-    <include><name>tv_stand</name><pose>-2.5 2.2 0 0 0 0</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Table</uri></include>
-    <include><name>plant_living</name><pose>2.0 2.0 0 0 0 0</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Plant</uri></include>
-    
-    <!-- Kitchen -->
-    <include><name>kitchen_table</name><pose>3.0 -1.5 0 0 0 0</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Table</uri></include>
-    <include><name>chair_1</name><pose>3.0 -0.8 0 0 0 -1.57</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Chair</uri></include>
-    <include><name>chair_2</name><pose>3.8 -1.5 0 0 0 3.14</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Chair</uri></include>
-    
-    <!-- Master Bedroom -->
-    <include><name>bed_master</name><pose>-2.0 3.5 0 0 0 0</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Bed</uri></include>
-    <include><name>nightstand</name><pose>-2.8 3.5 0 0 0 0</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Table</uri></include>
-    
-    <!-- Bedroom 2 -->
-    <include><name>bed_2</name><pose>-2.0 1.2 0 0 0 0</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Bed</uri></include>
-    
-    <!-- Hallway / Common -->
-    <include><name>bookshelf</name><pose>-2.8 0 0 0 0 1.57</pose><uri>https://fuel.gazebosim.org/1.0/OpenRobotics/models/Bookshelf</uri></include>
+    <!-- Removed due to Gazebo Fuel fetch failures. -->
     
   </world>
 </sdf>

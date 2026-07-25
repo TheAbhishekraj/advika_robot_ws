@@ -55,7 +55,14 @@ bash scripts/launch_robot.sh start
 ### Simulation (No Hardware Required)
 
 ```bash
-# Launch full simulation stack
+# Step 1 — Verify all prerequisites (Ubuntu 24.04, ROS2 Jazzy, Gazebo Harmonic, Python libs)
+bash ~/advika_robot_ws/scripts/verify_prerequisites.sh
+
+# Step 2 — Source ROS2 (add to ~/.bashrc to persist)
+source /opt/ros/jazzy/setup.bash
+source ~/advika_robot_ws/install/setup.bash
+
+# Step 3 — Launch full simulation stack
 ros2 launch advika_sim sim_bringup.launch.py
 
 # Open HITL dashboard
@@ -122,8 +129,12 @@ Full Gazebo Harmonic simulation with identical MCP APIs to hardware:
 ### Quick Start Commands
 
 ```bash
-# Single command setup (first time only)
-bash <(curl -fsSL https://raw.githubusercontent.com/TheAbhishekraj/advika_robot_ws/main/scripts/setup_advika.sh)
+# Verify prerequisites first
+bash ~/advika_robot_ws/scripts/verify_prerequisites.sh
+
+# Source environment
+source /opt/ros/jazzy/setup.bash
+source ~/advika_robot_ws/install/setup.bash
 
 # Launch simulation
 ros2 launch advika_sim sim_bringup.launch.py
@@ -143,6 +154,8 @@ ros2 launch advika_sim sim_bringup.launch.py use_hitl:=true
 | [SIMULATION_MASTER_GUIDE.md](docs/SIMULATION_MASTER_GUIDE.md) | Complete 9-week learning path |
 | [COMMANDS_REFERENCE.md](docs/COMMANDS_REFERENCE.md) | All terminal commands |
 | [AUDIT_CHECKLIST.md](docs/AUDIT_CHECKLIST.md) | External review / third-party audit |
+
+> ✅ **Verified 2026-07-25:** Ubuntu 24.04 · ROS2 Jazzy · Gazebo Harmonic 8.11.0 · All Python packages · Workspace built — all checks passed.
 
 See [simulation/docs/SIMULATION_GUIDE.md](simulation/docs/SIMULATION_GUIDE.md) for full details.
 
@@ -366,6 +379,9 @@ advika_robot_ws/
 |-- scripts/
 |   |-- launch_robot.sh                # Auto-start daemon
 |   |-- test_peripherals.py            # Hardware diagnostics (9 tests)
+|   |-- verify_prerequisites.sh        # ✅ Environment verification script
+|   |-- setup_advika.sh                # First-time workspace setup
+|   |-- auto_sim.py                    # Automated simulation runner
 |
 |-- manuals/
 |   |-- i_am_5/                        # Child-friendly robot manual
@@ -437,7 +453,7 @@ advika_robot_ws/
 |----------|-------|---------|
 | **C++** | `main.cpp`, `safety_interrupt.h` | ESP32 firmware (motor control, safety ISR) |
 | **Python** | `hardware_bridge.py`, `vision_bridge.py`, `hitl_bridge.py`, `sim_mcp_bridge.py`, `safety_monitor.py`, `run_scenario.py`, `test_peripherals.py` | MCP servers, HITL, simulation, diagnostics |
-| **Bash** | `launch_robot.sh` | Service orchestration |
+| **Bash** | `launch_robot.sh`, `verify_prerequisites.sh`, `setup_advika.sh` | Service orchestration & environment setup |
 | **YAML** | `robot_params.yaml`, `nav2_params.yaml`, `slam_params.yaml` | Configuration |
 | **JSON** | `opencode_config.json` | Agent configuration |
 | **XML/URDF** | `advika.urdf` | Robot model |

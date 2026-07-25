@@ -479,12 +479,12 @@ ros2 run xacro xacro ~/advika_robot_ws/simulation/urdf/advika.urdf > /dev/null &
 
 ### Verification Script
 ```bash
-# Run complete verification
-~/verify_prerequisites.sh
+# Run complete verification (auto-sources ROS2)
+bash ~/advika_robot_ws/scripts/verify_prerequisites.sh
 
 # Quick check
 python3 -c "import fastapi, cv2, numpy, yaml, websockets" && echo "Python deps OK"
-ros2 --version && gz sim --version && echo "ROS2 + Gazebo OK"
+source /opt/ros/jazzy/setup.bash && ros2 --version && gz sim --version && echo "ROS2 + Gazebo OK"
 ```
 
 ---
@@ -586,8 +586,9 @@ echo $DISPLAY
 ╠═══════════════════════════════════════════════════════════════════════════╣
 ║                                                                           ║
 ║  SETUP:                                                                   ║
-║    bash <(curl .../setup_advika.sh)     # One-time setup                  ║
-║    source install/setup.bash           # Source workspace               ║
+║    bash ~/advika_robot_ws/scripts/verify_prerequisites.sh # Check env    ║
+║    source /opt/ros/jazzy/setup.bash                # Source ROS2          ║
+║    source install/setup.bash                       # Source workspace     ║
 ║                                                                           ║
 ║  LAUNCH:                                                                  ║
 ║    ros2 launch advika_sim sim_bringup.launch.py    # Full sim             ║
@@ -639,7 +640,7 @@ rm -rf build/ install/ log/
 colcon build --symlink-install
 
 # 4. Check prerequisites
-ros2 --version && gz sim --version
+bash ~/advika_robot_ws/scripts/verify_prerequisites.sh
 
 # 5. Verify URDF
 ros2 run xacro xacro ~/advika_robot_ws/simulation/urdf/advika.urdf > /dev/null

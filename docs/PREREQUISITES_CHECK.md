@@ -383,29 +383,29 @@ ros2 pkg list | grep -E "bag|record"
 ### MUST PASS (Cannot proceed without these)
 | Check | Status | Value | Notes |
 |-------|--------|-------|-------|
-| Ubuntu 24.04 | □ PASS □ FAIL | ____ | |
-| 30GB+ Disk Space | □ PASS □ FAIL | ____ GB free | |
-| 8GB+ RAM | □ PASS □ FAIL | ____ GB | |
-| 4+ CPU Cores | □ PASS □ FAIL | ____ cores | |
-| ROS2 Jazzy | □ PASS □ FAIL | ____ | |
-| Gazebo Harmonic | □ PASS □ FAIL | ____ | |
-| Workspace Built | □ PASS □ FAIL | | Run `colcon build` |
-| URDF File | □ PASS □ FAIL | | |
-| Launch File | □ PASS □ FAIL | | |
+| Ubuntu 24.04 | ✅ PASS | 24.04 LTS | Verified 2026-07-25 |
+| 30GB+ Disk Space | ✅ PASS | 174 GB free | |
+| 8GB+ RAM | ✅ PASS | 15 GB | |
+| 4+ CPU Cores | ✅ PASS | 8 cores | |
+| ROS2 Jazzy | ✅ PASS | jazzy | Source: `/opt/ros/jazzy/setup.bash` |
+| Gazebo Harmonic | ✅ PASS | 8.11.0 | |
+| Workspace Built | ✅ PASS | install/ exists | `colcon build` complete |
+| URDF File | ✅ PASS | advika.urdf | |
+| Launch File | ✅ PASS | sim_bringup.launch.py | |
 
 ### SHOULD PASS (Will work but limited)
 | Check | Status | Notes |
 |-------|--------|-------|
-| Python Packages | □ PASS □ FAIL | fastapi, opencv, etc. |
-| RViz2 | □ PASS □ FAIL | For visualization |
-| Navigation2 | □ PASS □ FAIL | For autonomous nav |
-| SLAM Toolbox | □ PASS □ FAIL | For mapping |
+| Python Packages | ✅ PASS | fastapi 0.136, opencv 5.0, numpy 2.2, yaml 6.0, websockets 16.0 |
+| RViz2 | ✅ PASS | For visualization |
+| Navigation2 | ✅ PASS | For autonomous nav |
+| SLAM Toolbox | ✅ PASS | For mapping |
 
 ### NICE TO HAVE
 | Check | Status | Notes |
 |-------|--------|-------|
-| espeak-ng | □ PASS □ FAIL | For robot voice |
-| Recording Tools | □ PASS □ FAIL | For debugging |
+| espeak-ng | ⚠️ NOT INSTALLED | Optional — `sudo apt install espeak-ng` |
+| Recording Tools | ✅ PASS | ros2bag available |
 
 ---
 
@@ -414,10 +414,11 @@ ros2 pkg list | grep -E "bag|record"
 Run this single command to check everything:
 
 ```bash
-# Download and run verification script
-curl -fsSL https://raw.githubusercontent.com/TheAbhishekraj/advika_robot_ws/main/scripts/verify_prerequisites.sh | bash
+# Run verification script (already in repo)
+bash ~/advika_robot_ws/scripts/verify_prerequisites.sh
 
-# Or create it manually:
+# NOTE: Script auto-sources ROS2 Jazzy if not already sourced
+# If you want to create it manually:
 cat > ~/verify_prerequisites.sh << 'EOF'
 #!/bin/bash
 echo "=============================================="
@@ -510,6 +511,14 @@ echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
 ```bash
 # Install Gazebo Harmonic
 sudo apt install -y gz-harmonic
+```
+
+### espeak-ng Not Installed (Optional)
+```bash
+# Install text-to-speech engine (robot voice)
+sudo apt install -y espeak-ng
+# Test
+espeak-ng "Hello, I am Advika"
 ```
 
 ### Workspace Not Built

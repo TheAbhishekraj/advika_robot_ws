@@ -1,0 +1,170 @@
+{
+  "summary": {
+    "total": 23,
+    "passed": 21,
+    "failed": 2
+  },
+  "results": [
+    {
+      "phase": "A",
+      "name": "URDF file exists",
+      "passed": true,
+      "detail": "/home/abhishek/Documents/Robotics/advika_robot_ws/src/advika_description/urdf/advika.urdf",
+      "timestamp": "2026-07-25T15:03:06.181996"
+    },
+    {
+      "phase": "A",
+      "name": "spawn/create node in launch",
+      "passed": true,
+      "detail": "/home/abhishek/Documents/Robotics/advika_robot_ws/src/advika_sim/launch/sim_bringup.launch.py:    spawn_robot = Node(\n/h",
+      "timestamp": "2026-07-25T15:03:07.776082"
+    },
+    {
+      "phase": "A",
+      "name": "5s TimerAction delay",
+      "passed": true,
+      "detail": "on_start=[TimerAction(period=5.0, actions=[spawn_robot])]\n            on_start=[TimerAction(period=2.0, actions=[gz_bridge])]",
+      "timestamp": "2026-07-25T15:03:09.482179"
+    },
+    {
+      "phase": "A",
+      "name": "Workspace built",
+      "passed": true,
+      "detail": "/home/abhishek/Documents/Robotics/advika_robot_ws/install/setup.bash",
+      "timestamp": "2026-07-25T15:03:09.482349"
+    },
+    {
+      "phase": "B",
+      "name": "3bhk_house.world exists",
+      "passed": true,
+      "detail": "/home/abhishek/Documents/Robotics/advika_robot_ws/src/advika_sim/worlds/3bhk_house.world",
+      "timestamp": "2026-07-25T15:03:09.482733"
+    },
+    {
+      "phase": "B",
+      "name": "\u22654 wall models in world",
+      "passed": true,
+      "detail": "6 wall models found",
+      "timestamp": "2026-07-25T15:03:11.118355"
+    },
+    {
+      "phase": "B",
+      "name": "Launch uses 3BHK world",
+      "passed": true,
+      "detail": "cmd=['gz', 'sim', '-r', '-v', '4', os.path.join(world_path, '3bhk_house.world')],",
+      "timestamp": "2026-07-25T15:03:12.838826"
+    },
+    {
+      "phase": "C",
+      "name": "max_linear_velocity = 0.5",
+      "passed": true,
+      "detail": "<max_linear_velocity>0.5</max_linear_velocity>",
+      "timestamp": "2026-07-25T15:03:14.502901"
+    },
+    {
+      "phase": "C",
+      "name": "LiDAR range = 5.0m",
+      "passed": true,
+      "detail": "<range><min>0.12</min><max>5.0</max><resolution>0.01</resolution></range>",
+      "timestamp": "2026-07-25T15:03:16.207813"
+    },
+    {
+      "phase": "C",
+      "name": "Camera 320\u00d7240",
+      "passed": true,
+      "detail": "320px camera",
+      "timestamp": "2026-07-25T15:03:18.051096"
+    },
+    {
+      "phase": "C",
+      "name": "Nav2 max_iterations set",
+      "passed": true,
+      "detail": "max_iterations: 1000000",
+      "timestamp": "2026-07-25T15:03:19.924000"
+    },
+    {
+      "phase": "C",
+      "name": "Wheel friction = 0.8",
+      "passed": true,
+      "detail": "mu=0.8 tile friction",
+      "timestamp": "2026-07-25T15:03:21.792853"
+    },
+    {
+      "phase": "D",
+      "name": "Topic: /advika/scan",
+      "passed": true,
+      "detail": "active",
+      "timestamp": "2026-07-25T15:03:25.539633"
+    },
+    {
+      "phase": "D",
+      "name": "Topic: /advika/cmd_vel",
+      "passed": true,
+      "detail": "active",
+      "timestamp": "2026-07-25T15:03:25.539690"
+    },
+    {
+      "phase": "D",
+      "name": "Topic: /advika/odom",
+      "passed": true,
+      "detail": "active",
+      "timestamp": "2026-07-25T15:03:25.539721"
+    },
+    {
+      "phase": "D",
+      "name": "Topic: /advika/imu/data",
+      "passed": true,
+      "detail": "active",
+      "timestamp": "2026-07-25T15:03:25.539746"
+    },
+    {
+      "phase": "D",
+      "name": "Topic: /robot_description",
+      "passed": true,
+      "detail": "active",
+      "timestamp": "2026-07-25T15:03:25.539770"
+    },
+    {
+      "phase": "E",
+      "name": "Map YAML exists",
+      "passed": false,
+      "detail": "No map .yaml found \u2014 run: ros2 run nav2_map_server map_saver_cli -f ~/advika_3bhk_map",
+      "timestamp": "2026-07-25T15:03:25.540019"
+    },
+    {
+      "phase": "E",
+      "name": "Map PGM exists",
+      "passed": false,
+      "detail": "No .pgm found",
+      "timestamp": "2026-07-25T15:03:25.540137"
+    },
+    {
+      "phase": "E",
+      "name": "slam.launch.py exists",
+      "passed": true,
+      "detail": "slam.launch.py found",
+      "timestamp": "2026-07-25T15:03:25.540193"
+    },
+    {
+      "phase": "F",
+      "name": "nav2.launch.py exists",
+      "passed": true,
+      "detail": "/home/abhishek/Documents/Robotics/advika_robot_ws/src/advika_navigation/launch/nav2.launch.py",
+      "timestamp": "2026-07-25T15:03:25.540262"
+    },
+    {
+      "phase": "F",
+      "name": "nav2_params.yaml exists",
+      "passed": true,
+      "detail": "/home/abhishek/Documents/Robotics/advika_robot_ws/simulation/config/nav2_params.yaml",
+      "timestamp": "2026-07-25T15:03:25.540301"
+    },
+    {
+      "phase": "F",
+      "name": "Map configured in launch",
+      "passed": true,
+      "detail": "Phase 4: ros2 launch advika_navigation nav2.launch.py map:=my_first_map.yaml\n    map_file = LaunchCo",
+      "timestamp": "2026-07-25T15:03:27.483989"
+    }
+  ]
+}
