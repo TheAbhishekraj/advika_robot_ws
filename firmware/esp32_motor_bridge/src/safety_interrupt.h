@@ -15,7 +15,6 @@
 
 // ─── Safety Configuration ─────────────────────────────────────────────
 #define SAFETY_WATCHDOG_INTERVAL_US   500   // 500us watchdog check
-#define SAFETY_DEBOUNCE_MS            50    // 50ms debounce for E-Stop
 #define SAFETY_MAX_NO_HEARTBEAT_MS    500   // 500ms max without heartbeat
 
 // ─── Pin Definitions (must match main.cpp) ────────────────────────────
@@ -33,7 +32,6 @@
 volatile bool safety_estop_triggered = false;
 volatile bool safety_watchdog_expired = false;
 volatile unsigned long last_heartbeat_ms = 0;
-volatile unsigned long estop_debounce_start = 0;
 
 // ─── Forward Declarations ─────────────────────────────────────────────
 void IRAM_ATTR safety_estop_isr(void* arg);
@@ -47,13 +45,6 @@ void safety_soft_stop();
 
 // ─── E-Stop ISR (GPIO Interrupt) ──────────────────────────────────────
 void IRAM_ATTR safety_estop_isr(void* arg) {
-    // Debounce: ignore rapid toggles
-    unsigned long now = millis();
-    if ((now - estop_debounce_start) < SAFETY_DEBOUNCE_MS) {
-        return;
-    }
-    estop_debounce_start = now;
-
     // Check pin state (active LOW with pull-up)
     if (gpio_get_level((gpio_num_t)ESTOP_PIN) == 0) {
         safety_estop_triggered = true;
@@ -86,6 +77,8 @@ void safety_init_interrupts() {
     io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
     io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
     gpio_config(&io_conf);
+    gpio_set_direction((gpio_num_t)STATUS_LED_PIN, GPIO_MODE_OUTPUT);
+    gpio_set_direction((gpio_num_t)BUZZER_PIN, GPIO_MODE_OUTPUT);
 
     // Install GPIO ISR service
     gpio_install_isr_service(ESP_INTR_FLAG_IRAM);
@@ -147,7 +140,6 @@ void IRAM_ATTR safety_hard_stop() {
 
     // Sound buzzer briefly (if available)
     gpio_set_level((gpio_num_t)BUZZER_PIN, 1);
-    delayMicroseconds(100);
     gpio_set_level((gpio_num_t)BUZZER_PIN, 0);
 }
 

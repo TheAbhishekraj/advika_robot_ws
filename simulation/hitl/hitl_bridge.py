@@ -18,6 +18,7 @@ import json
 import time
 import asyncio
 import threading
+import logging
 from datetime import datetime
 from dataclasses import dataclass, asdict
 from typing import Dict, List, Optional, Callable, Any
@@ -33,6 +34,14 @@ from nav_msgs.msg import Odometry
 from cv_bridge import CvBridge
 import numpy as np
 
+# Logging
+logger = logging.getLogger("advika.hitl_bridge")
+if not logger.handlers:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+
 # Web framework
 try:
     from fastapi import FastAPI, WebSocket, WebSocketDisconnect
@@ -44,7 +53,7 @@ try:
     WEB_AVAILABLE = True
 except ImportError:
     WEB_AVAILABLE = False
-    print("WARNING: FastAPI/uvicorn not installed. HITL web interface disabled.")
+    logger.warning("FastAPI/uvicorn not installed. HITL web interface disabled.")
 
 # ==================== ENUMS ====================
 class HITLMode(Enum):
@@ -139,6 +148,7 @@ class HITLManager:
         self.approval_timeout_sec = 10.0
         self.auto_approve_below_risk = False
         self.risk_threshold_mm = 300
+        self._emergency_reset_token = os.getenv("HITL_EMERGENCY_RESET_TOKEN", "")
 
     def register_callback(self, event: str, callback: Callable):
         """Register a callback for HITL events."""
@@ -151,12 +161,16 @@ class HITLManager:
             try:
                 callback(data)
             except Exception as e:
-                print(f"HITL callback error: {e}")
+                logger.error(f"HITL callback error: {e}")
 
-    def set_mode(self, mode: HITLMode):
+    def set_mode(self, mode: HITLMode, *, actor: str = "system", emergency_reset_token: str = "") -> bool:
         """Change HITL operating mode."""
         with self._lock:
             old_mode = self.mode
+            if self.emergency_stop_active and mode != HITLMode.EMERGENCY:
+                if not self._emergency_reset_token or emergency_reset_token != self._emergency_reset_token:
+                    return False
+
             self.mode = mode
 
             if mode == HITLMode.EMERGENCY:
@@ -165,7 +179,8 @@ class HITLManager:
             else:
                 self.emergency_stop_active = False
 
-            self._notify('mode_change', {"from": old_mode.value, "to": mode.value})
+            self._notify('mode_change', {"from": old_mode.value, "to": mode.value, "actor": actor})
+            return True
 
     def request_action_approval(self, goal: str, action: str, params: Dict,
                                  tof_min: int, lidar_min: int) -> Optional[str]:
@@ -209,6 +224,24 @@ class HITLManager:
             asyncio.create_task(self._broadcast_action_request(pending))
 
             return action_id
+
+    def expire_timed_out_actions(self) -> int:
+        """Expire pending approvals that exceeded timeout."""
+        expired = 0
+        now = datetime.utcnow()
+        with self._lock:
+            for action in self.pending_actions:
+                if action.status != "pending":
+                    continue
+
+                created = datetime.fromisoformat(action.timestamp.replace("Z", ""))
+                if (now - created).total_seconds() >= action.timeout_sec:
+                    action.status = ActionStatus.TIMEOUT.value
+                    action.human_decision = "timeout_auto_reject"
+                    action.decision_timestamp = now.isoformat() + "Z"
+                    expired += 1
+                    asyncio.create_task(self._broadcast_action_update(action))
+        return expired
 
     def approve_action(self, action_id: str, approved_by: str = "human") -> bool:
         """Human approves a pending action."""
@@ -324,6 +357,7 @@ class HITLBridgeNode(Node):
 
     def __init__(self):
         super().__init__('hitl_bridge')
+        self.declare_parameter('use_sim_time', True)
 
         self.hitl = HITLManager()
         self.bridge = CvBridge()
@@ -369,7 +403,7 @@ class HITLBridgeNode(Node):
         # Safety check
         if msg.ranges:
             min_range = min(r for r in msg.ranges if r > msg.range_min)
-            if min_range < 0.15:
+            if min_range < 0.12:
                 self.hitl.add_safety_event(
                     SafetyLevel.CRITICAL,
                     f"Collision imminent! Object at {min_range:.2f}m",
@@ -398,6 +432,10 @@ class HITLBridgeNode(Node):
         pass  # IMU data available if needed
 
     def _publish_telemetry(self):
+        expired = self.hitl.expire_timed_out_actions()
+        if expired > 0:
+            self.get_logger().warn(f"Expired {expired} pending actions due to timeout")
+
         if self.current_odom is None:
             return
 
@@ -486,6 +524,8 @@ class HITLBridgeNode(Node):
             self.get_logger().warn("Cannot drive in EMERGENCY mode")
             return
 
+        linear = max(-1.0, min(1.0, linear))
+        angular = max(-1.0, min(1.0, angular))
         cmd = Twist()
         cmd.linear.x = linear
         cmd.angular.z = angular
@@ -545,11 +585,18 @@ if WEB_AVAILABLE:
         return JSONResponse({"success": success, "action_id": action_id})
 
     @app.post("/api/mode/{mode}")
-    async def api_set_mode(mode: str):
+    async def api_set_mode(mode: str, emergency_reset_token: str = ""):
         """Set HITL operating mode."""
         try:
             new_mode = HITLMode(mode)
-            hitl_manager.set_mode(new_mode)
+            success = hitl_manager.set_mode(
+                new_mode, actor="api", emergency_reset_token=emergency_reset_token
+            )
+            if not success:
+                return JSONResponse(
+                    {"success": False, "error": "Emergency lock active; reset token required"},
+                    403
+                )
             return JSONResponse({"success": True, "mode": mode})
         except ValueError:
             return JSONResponse({"success": False, "error": f"Invalid mode: {mode}"}, 400)
@@ -557,12 +604,17 @@ if WEB_AVAILABLE:
     @app.post("/api/emergency_stop")
     async def api_emergency_stop():
         """Trigger emergency stop."""
-        hitl_manager.set_mode(HITLMode.EMERGENCY)
+        hitl_manager.set_mode(HITLMode.EMERGENCY, actor="api")
         return JSONResponse({"success": True, "message": "Emergency stop activated"})
 
     @app.post("/api/manual_drive")
     async def api_manual_drive(linear: float = 0.0, angular: float = 0.0):
         """Send manual drive command."""
+        if linear < -1.0 or linear > 1.0 or angular < -1.0 or angular > 1.0:
+            return JSONResponse(
+                {"success": False, "error": "linear/angular must be within [-1.0, 1.0]"},
+                400
+            )
         if ros_node:
             ros_node.manual_drive(linear, angular)
             return JSONResponse({"success": True})
@@ -604,22 +656,40 @@ if WEB_AVAILABLE:
                     hitl_manager.reject_action(data.get("action_id"), data.get("reason", "rejected"))
                 elif data.get("type") == "mode_change":
                     try:
-                        hitl_manager.set_mode(HITLMode(data.get("mode")))
+                        target_mode = HITLMode(data.get("mode"))
+                        changed = hitl_manager.set_mode(
+                            target_mode,
+                            actor="websocket",
+                            emergency_reset_token=str(data.get("emergency_reset_token", ""))
+                        )
+                        if not changed:
+                            await websocket.send_json({
+                                "type": "error",
+                                "message": "Emergency lock active; reset token required"
+                            })
                     except ValueError:
                         await websocket.send_json({"type": "error", "message": "Invalid mode"})
                 elif data.get("type") == "manual_drive":
                     if ros_node:
+                        linear = _bounded_velocity(data.get("linear", 0.0))
+                        angular = _bounded_velocity(data.get("angular", 0.0))
+                        if linear is None or angular is None:
+                            await websocket.send_json({
+                                "type": "error",
+                                "message": "linear/angular must be numeric in [-1.0, 1.0]"
+                            })
+                            continue
                         ros_node.manual_drive(
-                            data.get("linear", 0.0),
-                            data.get("angular", 0.0)
+                            linear,
+                            angular
                         )
                 elif data.get("type") == "emergency_stop":
-                    hitl_manager.set_mode(HITLMode.EMERGENCY)
+                    hitl_manager.set_mode(HITLMode.EMERGENCY, actor="websocket")
 
         except WebSocketDisconnect:
             hitl_manager.connected_clients.discard(websocket)
         except Exception as e:
-            print(f"WebSocket error: {e}")
+            logger.error(f"WebSocket error: {e}")
             hitl_manager.connected_clients.discard(websocket)
 
 
@@ -642,11 +712,11 @@ def main_ros(args=None):
 def main_web():
     """Web server entry point."""
     if not WEB_AVAILABLE:
-        print("FastAPI not available. Install with: pip install fastapi uvicorn")
+        logger.error("FastAPI not available. Install with: pip install fastapi uvicorn")
         return
 
     port = int(os.getenv("HITL_PORT", "8080"))
-    print(f"Starting HITL web server on http://0.0.0.0:{port}")
+    logger.info(f"Starting HITL web server on http://0.0.0.0:{port}")
     uvicorn.run(app, host="0.0.0.0", port=port)
 
 
@@ -669,4 +739,15 @@ if __name__ == "__main__":
         ros_thread.start()
         main_web()
     else:
-        print("Usage: python3 hitl_bridge.py [--ros|--web|--both]")
+        logger.info("Usage: python3 hitl_bridge.py [--ros|--web|--both]")
+    def _safe_float(value: Any, default: float = 0.0) -> float:
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return default
+
+    def _bounded_velocity(value: Any) -> Optional[float]:
+        parsed = _safe_float(value, default=2.0)
+        if parsed < -1.0 or parsed > 1.0:
+            return None
+        return parsed

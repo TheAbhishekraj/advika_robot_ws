@@ -31,7 +31,7 @@ class SafetyMonitorNode(Node):
         self.declare_parameter('scan_topic', '/advika/scan')
         self.declare_parameter('cmd_vel_topic', '/advika/cmd_vel')
         self.declare_parameter('safety_cmd_topic', '/advika/safety_cmd_vel')
-        self.declare_parameter('collision_threshold_m', 0.15)
+        self.declare_parameter('collision_threshold_m', 0.12)
         self.declare_parameter('obstacle_threshold_m', 0.20)
         self.declare_parameter('recovery_reverse_m', 0.1)
         self.declare_parameter('recovery_turn_deg', 45.0)
@@ -89,18 +89,9 @@ class SafetyMonitorNode(Node):
         if self.last_scan is None:
             return
 
-        # Get minimum distance in front sector (-30 to +30 degrees)
-        front_ranges = []
-        for i, r in enumerate(self.last_scan.ranges):
-            angle = self.last_scan.angle_min + i * self.last_scan.angle_increment
-            if abs(angle) < math.radians(30):  # Front 60-degree cone
-                if self.last_scan.range_min < r < self.last_scan.range_max:
-                    front_ranges.append(r)
-
-        if not front_ranges:
+        min_front = self._front_min_distance()
+        if min_front is None:
             return
-
-        min_front = min(front_ranges)
 
         # Check for collision
         if min_front < self.collision_threshold and not self.safety_active:
@@ -190,6 +181,14 @@ class SafetyMonitorNode(Node):
             self.safety_cmd_pub.publish(cmd)
             self.safety_active = False
             self.recovery_mode = False
+            min_front = self._front_min_distance()
+            if min_front is not None and min_front < self.obstacle_threshold:
+                self.get_logger().warn(
+                    f"Recovery re-scan blocked at {min_front:.3f}m; running additional turn phase."
+                )
+                self.recovery_phase = 1
+                self._execute_recovery_phase(self.recovery_phase)
+                return
             self.get_logger().info("Recovery complete. Safety cleared.")
 
     def _next_recovery_phase(self):
@@ -201,6 +200,22 @@ class SafetyMonitorNode(Node):
         self.recovery_phase += 1
         if self.recovery_phase <= 2:
             self._execute_recovery_phase(self.recovery_phase)
+
+    def _front_min_distance(self):
+        """Return min front-sector distance in meters or None."""
+        if self.last_scan is None:
+            return None
+
+        front_ranges = []
+        for i, r in enumerate(self.last_scan.ranges):
+            angle = self.last_scan.angle_min + i * self.last_scan.angle_increment
+            if abs(angle) < math.radians(30):
+                if self.last_scan.range_min < r < self.last_scan.range_max:
+                    front_ranges.append(r)
+
+        if not front_ranges:
+            return None
+        return min(front_ranges)
 
 
 def main(args=None):
