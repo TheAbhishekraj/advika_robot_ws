@@ -1,0 +1,17 @@
+#,Part Name,Qty,Material,Infill%,Print Time(h),Weight(g),STL File,Notes
+1,advika_chassis,1,PLA Dark Grey,20,3.5,45,advika_chassis.stl,Base plate 200x150x3mm
+2,advika_motor_mount_L,1,PLA Blue,40,0.8,8,advika_motor_mount_L.stl,Left motor bracket
+3,advika_motor_mount_R,1,PLA Blue,40,0.8,8,advika_motor_mount_R.stl,Right motor bracket
+4,advika_wheel_hub_L,1,PLA Black,50,1.2,12,advika_wheel_hub_L.stl,Left wheel D60mm + M4 bore
+5,advika_wheel_hub_R,1,PLA Black,50,1.2,12,advika_wheel_hub_R.stl,Right wheel D60mm + M4 bore
+6,advika_lidar_tower,1,PLA Lt Grey,30,1.5,15,advika_lidar_tower.stl,LiDAR column 40x40x80mm
+7,advika_top_dome,1,PLA Green,15,2.0,18,advika_top_dome.stl,Dome D100mm supports needed
+8,advika_camera_horizon,1,PLA Amber,25,0.6,6,advika_camera_horizon.stl,Front nav camera mount
+9,advika_camera_floor,1,PLA Amber,25,0.5,5,advika_camera_floor.stl,Floor detection camera
+10,advika_imu_mount,1,PLA Purple,30,0.4,3,advika_imu_mount.stl,IMU sensor platform
+11,advika_battery_tray,1,PLA Orange,30,1.8,20,advika_battery_tray.stl,LiPo tray 150x80x20mm
+12,advika_bumper_front,1,PLA Red,45,0.7,9,advika_bumper_front.stl,Impact bumper 210x15x10mm
+13,advika_bumper_rear,1,PLA Red,45,0.7,9,advika_bumper_rear.stl,Impact bumper 210x15x10mm
+14,advika_esp32_enclosure,1,PLA Cyan,25,0.9,8,advika_esp32_enclosure.stl,ESP32 housing 60x40x25mm
+15,advika_axle_shaft,1,Steel Rod,100,0,advika_axle_shaft.stl,D8mm x 170mm - buy or turn
+,TOTAL,15 parts,,,16.6 h,178 g,,

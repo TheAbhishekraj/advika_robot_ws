@@ -106,6 +106,9 @@ config/secrets.yaml
 !docs/images/*.jpg
 !docs/pcb/*.png
 !docs/pcb/*.jpg
+# ROS2 mesh STLs (visual + collision)
+!src/advika_model/meshes/visual/*.stl
+!src/advika_model/meshes/collision/*.stl
 
 # 3D scans / point clouds
 *.ply

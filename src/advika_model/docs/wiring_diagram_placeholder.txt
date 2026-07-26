@@ -1,0 +1,9 @@
+PLACEHOLDER: Replace this file with actual wiring diagram PNG
+Suggested tool: Fritzing or KiCad
+Required connections:
+  ESP32 -> L298N Motor Driver (PWM pins)
+  ESP32 -> MPU6050 IMU (I2C: SDA=21, SCL=22)
+  ESP32 -> RPLiDAR A1 (UART: TX=17, RX=16)
+  ESP32 -> Camera x2 (OV2640 via I2C/SPI)
+  LiPo 3S -> L298N 12V input
+  LiPo 3S -> Buck converter -> ESP32 5V
