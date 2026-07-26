@@ -70,8 +70,10 @@ config/secrets.yaml
 .venv/
 
 # === CAD / 3D Printing ===
-# STL mesh files (too large for git, should be in releases)
+# STL mesh files — globally ignored (too large)
+# EXCEPTION: Fusion 360 primary design STLs in advika_description/stl/
 *.stl
+!src/advika_description/stl/*.stl
 
 # STEP mechanical files
 *.step
