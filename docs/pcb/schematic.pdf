@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>Advika 3.0 - Schematic Reference</title>
+<style>body{font-family:Arial,sans-serif;margin:30px;color:#222}
+h1{color:#1a5276}h2{color:#2874a6}table{border-collapse:collapse;width:100%;margin-bottom:20px}
+th,td{border:1px solid #ccc;padding:8px;text-align:left}th{background:#2874a6;color:white}
+tr:nth-child(even){background:#eaf2fb}.warn{background:#fef9e7;padding:10px;border-left:4px solid #f39c12}
+</style></head><body>
+<h1>Advika 3.0 - Schematic Reference Document</h1>
+<p><strong>PCB:</strong> Advika30_CLEAN.brd | 100x80mm | 2-Layer FR-4<br>
+<strong>Generated:</strong> 2026-07-26 | <strong>Version:</strong> 3.0</p>
+<div class="warn">&#9888; This HTML document is a schematic reference summary.
+For the official PDF schematic, open Advika30_CLEAN.brd in Fusion Electronics and use File â Export â PDF Schematic.</div>
+<h2>Component List</h2>
+<table><tr><th>Ref</th><th>Value</th><th>Package</th><th>Description</th></tr>
+<tr><td>U1</td><td>Raspberry Pi 5 4GB</td><td>SBC 85x56mm</td><td>Main compute (mounted on chassis)</td></tr>
+<tr><td>U2</td><td>ESP32-S3-DevKitC-1</td><td>ESP32-S3-DEVKIT</td><td>Main MCU on PCB</td></tr>
+<tr><td>U3</td><td>DRV8833PWP</td><td>QFN16-4X4</td><td>Dual H-bridge motor driver</td></tr>
+<tr><td>U4</td><td>BNO055</td><td>LGA28-5X4</td><td>9-DOF IMU</td></tr>
+<tr><td>U5</td><td>VL53L5CX</td><td>VL53L5CX</td><td>ToF sensor front</td></tr>
+<tr><td>U6</td><td>VL53L5CX</td><td>VL53L5CX</td><td>ToF sensor rear</td></tr>
+<tr><td>U7</td><td>SSD1306 OLED</td><td>Module 27x27mm</td><td>0.96 inch I2C OLED display</td></tr>
+<tr><td>U8</td><td>BMS 3S 10A</td><td>PCB module</td><td>Battery management system</td></tr>
+<tr><td>U9</td><td>DC-DC Buck 5V 5A</td><td>LM2596 module</td><td>11.1V to 5V step-down</td></tr>
+<tr><td>U10</td><td>AMS1117-3.3 LDO</td><td>SOT-223</td><td>3.3V LDO regulator</td></tr>
+<tr><td>J1</td><td>YDLIDAR X4 Connector</td><td>JST-PH4</td><td>LiDAR power + UART</td></tr>
+<tr><td>J2</td><td>Pi Camera CSI0 FPC</td><td>FPC15</td><td>Camera 1 CSI ribbon</td></tr>
+<tr><td>J3</td><td>Pi Camera CSI1 FPC</td><td>FPC15</td><td>Camera 2 CSI ribbon</td></tr>
+<tr><td>J4</td><td>SSD1306 I2C Header</td><td>HDR4-I2C</td><td>4-pin I2C to OLED</td></tr>
+<tr><td>J5</td><td>E-Stop Button</td><td>JST-PH2</td><td>Normally-closed E-Stop</td></tr>
+<tr><td>J6</td><td>Bumper Switch 1</td><td>SW3PIN</td><td>Front bumper microswitch</td></tr>
+<tr><td>J7</td><td>Bumper Switch 2</td><td>SW3PIN</td><td>Rear bumper microswitch</td></tr>
+<tr><td>J8</td><td>RPi5 GPIO Header</td><td>2x20 2.54mm</td><td>40-pin GPIO connection</td></tr>
+<tr><td>BT1</td><td>3S2P 18650 Pack</td><td>Custom tray</td><td>11.1V 6800mAh battery</td></tr>
+<tr><td>C1-C4</td><td>100nF</td><td>0402</td><td>Decoupling caps sensor area</td></tr>
+<tr><td>C5-C8</td><td>100nF</td><td>0402</td><td>Decoupling caps MCU area</td></tr>
+<tr><td>C9-C10</td><td>10uF</td><td>0805</td><td>Bulk bypass caps</td></tr>
+<tr><td>C11-C12</td><td>4.7uF</td><td>0805</td><td>Power rail bulk</td></tr>
+<tr><td>R1-R4</td><td>4.7k Ohm</td><td>0402</td><td>I2C pull-up resistors</td></tr>
+<tr><td>R5-R8</td><td>10k Ohm</td><td>0402</td><td>GPIO pull-down resistors</td></tr>
+</table>
+<h2>Power Architecture</h2>
+<table><tr><th>Rail</th><th>Voltage</th><th>Source</th><th>Loads</th><th>Trace Width</th></tr>
+<tr><td>VM_MOTOR</td><td>11.1V</td><td>3S2P Battery â BMS</td><td>DRV8833 VM</td><td>1.0mm</td></tr>
+<tr><td>5V_MAIN</td><td>5V</td><td>DC-DC Buck</td><td>ESP32-S3 VIN, OLED</td><td>0.8mm</td></tr>
+<tr><td>5V_LIDAR</td><td>5V</td><td>DC-DC Buck</td><td>YDLIDAR X4</td><td>0.5mm</td></tr>
+<tr><td>3V3_MCU</td><td>3.3V</td><td>AMS1117 / ESP32 out</td><td>BNO055, VL53 x2, OLED</td><td>0.5mm</td></tr>
+<tr><td>GND</td><td>0V</td><td>Common</td><td>All components</td><td>Solid pour</td></tr>
+</table>
+<h2>Design Rules Reference</h2>
+<table><tr><th>Rule</th><th>Value</th></tr>
+<tr><td>Signal trace width (min)</td><td>0.2mm</td></tr>
+<tr><td>Power trace width (min)</td><td>0.5mm</td></tr>
+<tr><td>Clearance (min)</td><td>0.15mm</td></tr>
+<tr><td>Drill (min)</td><td>0.3mm</td></tr>
+<tr><td>Board dimensions</td><td>100 x 80mm</td></tr>
+<tr><td>Layers</td><td>2 (Top + Bottom copper)</td></tr>
+</table>
+</body></html>
