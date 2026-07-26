@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html><head><title>Advika 3.0 Wiring Diagram</title>
+<style>
+body{font-family:monospace;background:#1a1a2e;color:#eee;padding:20px}
+th{background:#16213e;padding:6px;text-align:left}
+td{padding:4px 10px;border-bottom:1px solid #333}
+.power{color:#ff6b6b} .i2c{color:#4ecdc4} .uart{color:#ffe66d}
+.gpio{color:#a8e6cf} .gnd{color:#888} .cam{color:#c778dd}
+h1{color:#4ecdc4} h2{color:#ffe66d}
+pre{background:#000;padding:15px;border-left:4px solid #4ecdc4;overflow-x:auto}
+</style></head><body>
+<h1>&#9889; Advika 3.0 &mdash; Wiring Diagram</h1>
+<p>100&times;80mm 2-Layer FR-4 PCB | ESP32-S3 Carrier + Sensor Hub</p>
+<pre id="diagram">
+BATTERY (3S2P 18650 | 11.1V 6.8Ah)
+  |  VM(+)
+  v
+[BMS 10A]----VM_MOTOR(11.1V 1mm trace)---->[DRV8833 U3]
+  |                                              |
+  v                                    +----AOUT1/AOUT2---->[LEFT MOTOR]
+[DC-DC Buck 5V/5A]                     +----BOUT1/BOUT2---->[RIGHT MOTOR]
+  |  5V_MAIN(0.8mm)                    ^
+  +--------->[RPI5 USB-C (U1)]         |  GPIO1-5 (MTR_AIN1/2,BIN1/2,nSLEEP)
+  |  5V_LIDAR(0.5mm)                   |
+  +--------->[YDLIDAR X4 (J1)]     [ESP32-S3 DevKit (U2)]
+                                        |  3V3_MCU (0.5mm)
+                                        +------>[BNO055 U4]
+                                        +------>[VL53L5CX U5 front]
+                                        +------>[VL53L5CX U6 rear]
+                                        +------>[SSD1306 OLED (J4)]
+                                        |
+           I2C BUS (SDA/SCL 0.2mm)------+  GPIO8=SDA  GPIO9=SCL
+           (4.7k pull-ups R1-R4 to 3V3) |
+                                        |  UART (0.2mm)
+           LIDAR_TX/RX --> J1 YDLIDAR --+  GPIO17=TX  GPIO18=RX
+                                        |
+           BUMP1 <-- J6 Bumper SW1 -----+  GPIO12
+           BUMP2 <-- J7 Bumper SW2 -----+  GPIO13
+           ESTOP <-- J5 E-Stop NC  -----+  GPIO14
+                                        |
+[RPI5 U1]                               |
+  | CSI0 FPC --> J2 Pi Camera #1        |
+  | CSI1 FPC --> J3 Pi Camera #2        |
+  | 3V3_PI  --> Camera VDD              |
+  | UART/USB --> [optional bridge] -----+
+
+GND: Solid copper pour on Layer 16 (Bottom) -- connects ALL components
+     Thermal vias through board to top-side pads as needed
+</pre>
+
+<h2>Signal Colour Legend</h2>
+<table><tr><th>Colour</th><th>Net Type</th><th>Width</th></tr>
+<tr class="power"><td>&#9632; Red/Orange</td><td>Power (11.1V, 5V, 3.3V)</td><td>0.5&ndash;1.0mm</td></tr>
+<tr class="gnd"><td>&#9632; Black</td><td>Ground</td><td>Solid pour</td></tr>
+<tr class="i2c"><td>&#9632; Teal/Blue</td><td>I2C (SDA/SCL)</td><td>0.2mm</td></tr>
+<tr class="uart"><td>&#9632; Yellow</td><td>UART (LIDAR TX/RX)</td><td>0.2mm</td></tr>
+<tr class="gpio"><td>&#9632; Green</td><td>GPIO (Motor ctrl, Bumpers)</td><td>0.2mm</td></tr>
+<tr class="cam"><td>&#9632; Violet</td><td>CSI Camera Flex</td><td>FPC ribbon</td></tr>
+</table></body></html>

@@ -104,6 +104,8 @@ config/secrets.yaml
 *.jpg
 !docs/images/*.png
 !docs/images/*.jpg
+!docs/pcb/*.png
+!docs/pcb/*.jpg
 
 # 3D scans / point clouds
 *.ply
