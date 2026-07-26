@@ -11,9 +11,10 @@
     
     <!-- Scene -->
     <scene>
-      <ambient>0.4 0.4 0.4 1</ambient>
-      <background>0.85 0.85 0.9 1</background>
+      <ambient>0.4 0.4 0.45 1</ambient>
+      <background>0.9 0.87 0.82 1</background>
       <shadows>true</shadows>
+      <grid>false</grid>
     </scene>
     
     <!-- Ground -->
@@ -44,11 +45,12 @@
     
     <!-- Sun -->
     <light name="sun" type="directional">
-      <pose>5 5 10 0 0 0</pose>
-      <diffuse>0.8 0.8 0.8 1</diffuse>
-      <specular>0.2 0.2 0.2 1</specular>
-      <direction>-0.5 0.1 -0.9</direction>
+      <pose>10 10 15 0 0 0</pose>
+      <diffuse>1 0.95 0.85 1</diffuse>
+      <specular>0.3 0.3 0.3 1</specular>
+      <direction>-0.45 0.1 -0.88</direction>
       <cast_shadows>true</cast_shadows>
+      <shadow><resolution>2048</resolution><near>0.5</near><far>30</far></shadow>
     </light>
     
     <!-- Indoor lights -->
@@ -120,8 +122,36 @@
       <link name="link"><collision name="c"><geometry><box><size>3.2 0.1 2.5</size></box></geometry></collision>
       <visual name="v"><geometry><box><size>3.2 0.1 2.5</size></box></geometry><material><ambient>0.95 0.95 0.95 1</ambient></material></visual></link></model>
     
-    <!-- ==================== FURNITURE FROM GAZEBO FUEL ==================== -->
-    <!-- Removed due to Gazebo Fuel fetch failures. -->
+    <!-- Living room floor -->
+    <model name="living_floor">
+      <static>true</static><pose>0 0 0.002 0 0 0</pose>
+      <link name="link"><collision name="c"><geometry><box><size>6.0 5.0 0.004</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>6.0 5.0 0.004</size></box></geometry>
+          <material><ambient>0.5 0.3 0.15 1</ambient><diffuse>0.65 0.4 0.2 1</diffuse><specular>0.1 0.1 0.1 1</specular>
+            <pbr><metallic>0</metallic><roughness>0.7</roughness></pbr></material></visual></link>
+    </model>
+
+    <!-- Coffee table (center of living room) -->
+    <model name="coffee_table">
+      <static>true</static><pose>0 0 0.25 0 0 0</pose>
+      <link name="wood_base">
+        <collision name="c"><geometry><box><size>0.9 0.5 0.05</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.9 0.5 0.05</size></box></geometry>
+          <material><ambient>0.35 0.18 0.08 1</ambient><diffuse>0.5 0.28 0.12 1</diffuse><specular>0.2 0.15 0.1 1</specular></material></visual>
+      </link>
+      <link name="leg_br"><pose>0.35 0.18 -0.22 0 0 0</pose><collision name="c"><geometry><box><size>0.05 0.05 0.44</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.05 0.05 0.44</size></box></geometry><material><ambient>0.3 0.2 0.1 1</ambient><diffuse>0.4 0.25 0.12 1</diffuse></material></visual>
+      </link>
+      <link name="leg_bl"><pose>-0.35 0.18 -0.22 0 0 0</pose><collision name="c"><geometry><box><size>0.05 0.05 0.44</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.05 0.05 0.44</size></box></geometry><material><ambient>0.3 0.2 0.1 1</ambient><diffuse>0.4 0.25 0.12 1</diffuse></material></visual>
+      </link>
+      <link name="leg_fr"><pose>0.35 -0.18 -0.22 0 0 0</pose><collision name="c"><geometry><box><size>0.05 0.05 0.44</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.05 0.05 0.44</size></box></geometry><material><ambient>0.3 0.2 0.1 1</ambient><diffuse>0.4 0.25 0.12 1</diffuse></material></visual>
+      </link>
+      <link name="leg_fl"><pose>-0.35 -0.18 -0.22 0 0 0</pose><collision name="c"><geometry><box><size>0.05 0.05 0.44</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.05 0.05 0.44</size></box></geometry><material><ambient>0.3 0.2 0.1 1</ambient><diffuse>0.4 0.25 0.12 1</diffuse></material></visual>
+      </link>
+    </model>
     
   </world>
 </sdf>

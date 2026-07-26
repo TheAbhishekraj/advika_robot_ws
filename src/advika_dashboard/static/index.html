@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advika 3.0 — Control Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ═══════════════════════ TOP BAR ═══════════════════════ -->
+<header id="topbar">
+  <div class="brand">
+    <div class="brand-icon">A</div>
+    <div>
+      <div class="brand-name">ADVIKA 3.0</div>
+      <div class="brand-sub">AMR Control Station</div>
+    </div>
+  </div>
+  <div class="status-lights">
+    <div class="light-item">
+      <div class="light" id="light-connected">●</div><span>ROS</span>
+    </div>
+    <div class="light-item">
+      <div class="light" id="light-auto">●</div><span>AUTO</span>
+    </div>
+    <div class="light-item">
+      <div class="light" id="light-estop">●</div><span>E-STOP</span>
+    </div>
+  </div>
+  <div class="battery-bar-wrap">
+    <div class="battery-label">BAT</div>
+    <div class="battery-bar-outer">
+      <div class="battery-bar-inner" id="battery-bar"></div>
+    </div>
+    <div class="battery-pct" id="battery-pct">100%</div>
+  </div>
+</header>
+
+<!-- ═══════════════════════ MAIN GRID ═══════════════════════ -->
+<div id="main">
+
+  <!-- ───── 1. CAMERA FEEDS (left column) ───── -->
+  <section class="panel" id="panel-cameras">
+    <div class="panel-title">📷 Camera Feeds</div>
+    <div class="camera-row">
+      <div class="camera-wrap">
+        <canvas id="canvas-horizon" width="320" height="240"></canvas>
+        <div class="cam-label">HORIZON</div>
+        <div class="fps-badge" id="fps-horizon">-- fps</div>
+      </div>
+      <div class="camera-wrap">
+        <canvas id="canvas-floor" width="320" height="240"></canvas>
+        <div class="cam-label">FLOOR</div>
+        <div class="fps-badge" id="fps-floor">-- fps</div>
+      </div>
+    </div>
+    <!-- Camera selector -->
+    <div class="cam-tabs">
+      <button class="cam-tab active" id="tab-sim">SIM VIEW</button>
+      <button class="cam-tab" id="tab-raw">RAW FEED</button>
+    </div>
+  </section>
+
+  <!-- ───── 2. LiDAR SCAN (top-right) ───── -->
+  <section class="panel" id="panel-lidar">
+    <div class="panel-title">🔊 LiDAR Scan</div>
+    <div class="lidar-wrap">
+      <canvas id="canvas-lidar" width="280" height="280"></canvas>
+      <div class="lidar-range" id="lidar-range">5.0m</div>
+    </div>
+    <div class="lidar-stats">
+      <span>Min: <b id="lidar-min">--</b></span>
+      <span>Avg: <b id="lidar-avg">--</b></span>
+      <span>Max: <b id="lidar-max">--</b></span>
+    </div>
+  </section>
+
+  <!-- ───── 3. POSE + TRAJECTORY (middle-right) ───── -->
+  <section class="panel" id="panel-pose">
+    <div class="panel-title">🧭 Robot Pose</div>
+    <div class="pose-grid">
+      <div class="pose-item"><label>X</label><span id="pose-x">0.000</span></div>
+      <div class="pose-item"><label>Y</label><span id="pose-y">0.000</span></div>
+      <div class="pose-item"><label>YAW</label><span id="pose-yaw">0.000°</span></div>
+    </div>
+    <div class="trajectory-wrap">
+      <canvas id="canvas-traj" width="240" height="240"></canvas>
+    </div>
+  </section>
+
+  <!-- ───── 4. TELEOP JOYSTICK (center) ───── -->
+  <section class="panel" id="panel-teleop">
+    <div class="panel-title">🎮 Teleop</div>
+    <div class="teleop-layout">
+      <!-- Virtual joystick -->
+      <div class="joystick-zone" id="joystick-zone">
+        <div class="joystick-base">
+          <div class="joystick-stick" id="joystick-stick"></div>
+        </div>
+        <div class="joystick-readout">
+          <div>LX: <b id="jx-out">0.00</b></div>
+          <div>AZ: <b id="jz-out">0.00</b></div>
+        </div>
+      </div>
+      <!-- Speed slider -->
+      <div class="speed-control">
+        <label>SPEED</label>
+        <input type="range" id="speed-slider" min="1" max="10" value="5">
+        <span id="speed-val">5</span>
+      </div>
+      <!-- Direction buttons -->
+      <div class="dir-btns">
+        <button class="dir-btn" id="btn-forward">▲</button>
+        <button class="dir-btn" id="btn-left">◄</button>
+        <button class="dir-btn" id="btn-stop">■</button>
+        <button class="dir-btn" id="btn-right">►</button>
+        <button class="dir-btn" id="btn-back">▼</button>
+      </div>
+      <!-- Keyboard hint -->
+      <div class="key-hint">Keys: <b>i</b> ▲ <b>j</b> ◄ <b>k</b> ■ <b>l</b> ► <b>m</b> ▼</div>
+    </div>
+  </section>
+
+  <!-- ───── 5. IMU DATA ───── -->
+  <section class="panel" id="panel-imu">
+    <div class="panel-title">📐 IMU Data</div>
+    <div class="imu-grid">
+      <div class="imu-chart-wrap"><canvas id="chart-accel" width="220" height="80"></canvas></div>
+      <div class="imu-chart-wrap"><canvas id="chart-gyro" width="220" height="80"></canvas></div>
+    </div>
+  </section>
+
+  <!-- ───── 6. CONTROL BUTTONS ───── -->
+  <section class="panel" id="panel-controls">
+    <div class="panel-title">⚙️ Control Panel</div>
+    <div class="ctrl-btns">
+      <button class="ctrl-btn blue" id="btn-auto">AUTO MODE</button>
+      <button class="ctrl-btn orange" id="btn-manual">MANUAL</button>
+      <button class="ctrl-btn" id="btn-map">OPEN MAP</button>
+      <button class="ctrl-btn" id="btn-goal">SET GOAL</button>
+    </div>
+    <div class="ctrl-btns">
+      <button class="ctrl-btn green" id="btn-home">GO HOME</button>
+      <button class="ctrl-btn purple" id="btn-follow">FOLLOW</button>
+    </div>
+    <div class="e-stop-wrap">
+      <button class="e-stop-btn" id="btn-estop">🛑 E-STOP</button>
+      <button class="e-stop-reset-btn" id="btn-estop-reset">RESET</button>
+    </div>
+  </section>
+
+</div><!-- /main -->
+
+<!-- ═══════════════════════ STATUS BAR ═══════════════════════ -->
+<footer id="statusbar">
+  <span id="status-msg">ADVIKA 3.0 Dashboard Ready</span>
+  <span id="clock"></span>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
