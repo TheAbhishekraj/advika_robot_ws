@@ -1,144 +1,535 @@
 <?xml version="1.0"?>
+<!--
+  ADVIKA 3.0 — URDF using YOUR Fusion 360 STL Files (frozen 2026-07-26)
+  STL location: src/advika_description/stl/
+  Your 15 STLs: chassis, top_dome, wheel_hub_L/R, bumper_front/rear,
+                 camera_horizon/floor, motor_mount_L/R, imu_mount,
+                 battery_tray, esp32_enclosure, axle_shaft
+  Missing: lidar_tower.stl, caster_f.stl → use primitives instead
+-->
 <robot name="advika">
-  <material name="black"><color rgba="0.1 0.1 0.1 1.0"/></material>
-  <material name="grey"><color rgba="0.5 0.5 0.5 1.0"/></material>
-  <material name="white"><color rgba="0.9 0.9 0.9 1.0"/></material>
-  <material name="red"><color rgba="0.8 0.1 0.1 1.0"/></material>
-  <material name="blue"><color rgba="0.1 0.3 0.8 1.0"/></material>
-  <material name="green"><color rgba="0.1 0.7 0.2 1.0"/></material>
-  <material name="transparent"><color rgba="0.5 0.5 0.5 0.3"/></material>
 
-  <!-- ==================== BASE FOOTPRINT ==================== -->
+  <material name="black"><color rgba="0.08 0.08 0.08 1.0"/></material>
+  <material name="darkgrey"><color rgba="0.25 0.25 0.28 1.0"/></material>
+  <material name="grey"><color rgba="0.55 0.55 0.58 1.0"/></material>
+  <material name="silver"><color rgba="0.75 0.75 0.78 1.0"/></material>
+  <material name="white"><color rgba="0.92 0.92 0.90 1.0"/></material>
+  <material name="red"><color rgba="0.85 0.12 0.15 1.0"/></material>
+  <material name="orange"><color rgba="0.95 0.45 0.0 1.0"/></material>
+  <material name="chassis_blue"><color rgba="0.10 0.22 0.38 1.0"/></material>
+  <material name="pcb_green"><color rgba="0.08 0.45 0.12 1.0"/></material>
+
+  <!-- ══════════════════════════════════════════════════════
+       BASE FOOTPRINT
+  ══════════════════════════════════════════════════════ -->
   <link name="base_footprint"/>
-
   <joint name="base_footprint_joint" type="fixed">
     <parent link="base_footprint"/>
     <child link="base_link"/>
-    <origin xyz="0 0 0.0" rpy="0 0 0"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
   </joint>
 
-  <!-- ==================== BASE LINK ==================== -->
+  <!-- ══════════════════════════════════════════════════════
+       BASE LINK — advika_chassis.stl (Fusion 360)
+       Your chassis STL includes base plate + mid frame
+  ══════════════════════════════════════════════════════ -->
   <link name="base_link">
-    <visual><origin xyz="0 0 0.075" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_base_plate.stl"/></geometry><material name="blue"/></visual>
-    <collision><origin xyz="0 0 0.075" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_base_plate.stl"/></geometry></collision>
-    <inertial><origin xyz="0 0 0.075" rpy="0 0 0"/><mass value="2.0"/><inertia ixx="0.0125" ixy="0" ixz="0" iyy="0.0165" iyz="0" izz="0.0245"/></inertial>
-  
-    <visual><origin xyz="0 0 0" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_mid_frame.stl"/></geometry><material name="blue"/></visual>
-    <visual><origin xyz="0.130 0 0.03" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_bumper_front.stl"/></geometry><material name="red"/></visual>
-    <visual><origin xyz="-0.130 0 0.03" rpy="0 0 3.14159"/><geometry><mesh filename="package://advika_cad/meshes/advika30_bumper_rear.stl"/></geometry><material name="red"/></visual>
-
+    <!-- Main chassis body -->
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://advika_description/stl/advika_chassis.stl"/>
+      </geometry>
+      <material name="chassis_blue"/>
+    </visual>
+    <!-- Simplified collision box (faster physics engine) -->
+    <collision>
+      <origin xyz="0 0 0.065" rpy="0 0 0"/>
+      <geometry><box size="0.300 0.240 0.130"/></geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0.065" rpy="0 0 0"/>
+      <mass value="2.2"/>
+      <inertia ixx="0.012" ixy="0" ixz="0" iyy="0.016" iyz="0" izz="0.025"/>
+    </inertial>
   </link>
 
+  <!-- ══════════════════════════════════════════════════════
+       FRONT BUMPER — advika_bumper_front.stl (Fusion 360)
+  ══════════════════════════════════════════════════════ -->
+  <link name="bumper_front">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://advika_description/stl/advika_bumper_front.stl"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.020 0.200 0.060"/></geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.08"/>
+      <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.00005" iyz="0" izz="0.0001"/>
+    </inertial>
+  </link>
+  <joint name="bumper_front_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="bumper_front"/>
+    <origin xyz="0.155 0 0.03" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ══════════════════════════════════════════════════════
+       REAR BUMPER — advika_bumper_rear.stl (Fusion 360)
+  ══════════════════════════════════════════════════════ -->
+  <link name="bumper_rear">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://advika_description/stl/advika_bumper_rear.stl"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.020 0.200 0.060"/></geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.08"/>
+      <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.00005" iyz="0" izz="0.0001"/>
+    </inertial>
+  </link>
+  <joint name="bumper_rear_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="bumper_rear"/>
+    <origin xyz="-0.155 0 0.03" rpy="0 0 3.14159"/>
+  </joint>
+
+  <!-- ══════════════════════════════════════════════════════
+       LEFT WHEEL — advika_wheel_hub_L.stl (Fusion 360)
+  ══════════════════════════════════════════════════════ -->
   <link name="left_wheel">
-    <visual><origin xyz="0 0 0" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_wheel_hub_L.stl"/></geometry><material name="black"/></visual>
-    <collision><origin xyz="0 0 0" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_wheel_hub_L.stl"/></geometry><material name="black"/></visual>
-    <collision><origin xyz="0 0 0" rpy="0 0 0"/><geometry><cylinder radius="0.0325" length="0.03"/></geometry></collision>
-    <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="0.15"/><inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.00008"/></inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://advika_description/stl/advika_wheel_hub_L.stl"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <!-- Cylinder approximation for collision -->
+    <collision>
+      <origin xyz="0 0 0" rpy="-1.5708 0 0"/>
+      <geometry><cylinder radius="0.0325" length="0.030"/></geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.15"/>
+      <inertia ixx="0.00008" ixy="0" ixz="0" iyy="0.00008" iyz="0" izz="0.00012"/>
+    </inertial>
   </link>
-  <joint name="left_wheel_joint" type="continuous"><parent link="base_link"/><child link="left_wheel"/><origin xyz="0 0.10 0.0325" rpy="-1.5708 0 0"/><axis xyz="0 0 1"/></joint>
+  <joint name="left_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="left_wheel"/>
+    <origin xyz="0 0.100 0.0325" rpy="-1.5708 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
 
+  <!-- ══════════════════════════════════════════════════════
+       RIGHT WHEEL — advika_wheel_hub_R.stl (Fusion 360)
+  ══════════════════════════════════════════════════════ -->
   <link name="right_wheel">
-    <visual><origin xyz="0 0 0" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_wheel_hub_R.stl"/></geometry><material name="black"/></visual>
-    <collision><origin xyz="0 0 0" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_wheel_hub_R.stl"/></geometry><material name="black"/></visual>
-    <collision><origin xyz="0 0 0" rpy="0 0 0"/><geometry><cylinder radius="0.0325" length="0.03"/></geometry></collision>
-    <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="0.15"/><inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.00008"/></inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://advika_description/stl/advika_wheel_hub_R.stl"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="-1.5708 0 0"/>
+      <geometry><cylinder radius="0.0325" length="0.030"/></geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.15"/>
+      <inertia ixx="0.00008" ixy="0" ixz="0" iyy="0.00008" iyz="0" izz="0.00012"/>
+    </inertial>
   </link>
-  <joint name="right_wheel_joint" type="continuous"><parent link="base_link"/><child link="right_wheel"/><origin xyz="0 -0.10 0.0325" rpy="-1.5708 0 0"/><axis xyz="0 0 1"/></joint>
+  <joint name="right_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="right_wheel"/>
+    <origin xyz="0 -0.100 0.0325" rpy="-1.5708 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
 
-  <link name="caster_wheel">
-    <visual><origin xyz="0 0 0" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_caster_housing_F.stl"/></geometry><material name="grey"/></visual>
-    <collision><origin xyz="0 0 0" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_caster_housing_F.stl"/></geometry><material name="grey"/></visual>
-    <collision><origin xyz="0 0 0" rpy="0 0 0"/><geometry><sphere radius="0.015"/></geometry></collision>
-    <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="0.05"/><inertia ixx="0.00001" ixy="0" ixz="0" iyy="0.00001" iyz="0" izz="0.00001"/></inertial>
+  <!-- ══════════════════════════════════════════════════════
+       FRONT CASTER — ball caster (approximated, no STL)
+       Your STL set does NOT include caster_f.stl
+  ══════════════════════════════════════════════════════ -->
+  <link name="caster_front">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><sphere radius="0.0075"/></geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><sphere radius="0.0075"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="0.04"/>
+      <inertia ixx="0.000004" ixy="0" ixz="0" iyy="0.000004" iyz="0" izz="0.000004"/>
+    </inertial>
   </link>
-  <joint name="caster_wheel_joint" type="fixed"><parent link="base_link"/><child link="caster_wheel"/><origin xyz="0.12 0 0.015" rpy="0 0 0"/></joint>
+  <joint name="caster_front_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="caster_front"/>
+    <origin xyz="0.12 0 0.015" rpy="0 0 0"/>
+  </joint>
 
-  <link name="caster_wheel_rear">
-    <visual><origin xyz="0 0 0" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_caster_housing_R.stl"/></geometry><material name="grey"/></visual>
-    <collision><origin xyz="0 0 0" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_caster_housing_R.stl"/></geometry><material name="grey"/></visual>
-    <collision><origin xyz="0 0 0" rpy="0 0 0"/><geometry><sphere radius="0.015"/></geometry></collision>
-    <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="0.05"/><inertia ixx="0.00001" ixy="0" ixz="0" iyy="0.00001" iyz="0" izz="0.00001"/></inertial>
+  <!-- ══════════════════════════════════════════════════════
+       REAR CASTER — ball caster (approximated, no STL)
+  ══════════════════════════════════════════════════════ -->
+  <link name="caster_rear">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><sphere radius="0.0075"/></geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><sphere radius="0.0075"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="0.04"/>
+      <inertia ixx="0.000004" ixy="0" ixz="0" iyy="0.000004" iyz="0" izz="0.000004"/>
+    </inertial>
   </link>
-  <joint name="caster_wheel_rear_joint" type="fixed"><parent link="base_link"/><child link="caster_wheel_rear"/><origin xyz="-0.12 0 0.015" rpy="0 0 0"/></joint>
+  <joint name="caster_rear_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="caster_rear"/>
+    <origin xyz="-0.12 0 0.015" rpy="0 0 0"/>
+  </joint>
 
+  <!-- ══════════════════════════════════════════════════════
+       LiDAR TOWER — advika_top_dome.stl (Fusion 360)
+       Your STL includes top dome + dome portion
+       Note: lidar_tower.stl NOT in your 15 STL set
+  ══════════════════════════════════════════════════════ -->
   <link name="lidar_tower">
-    <visual><origin xyz="0 0 -0.15" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_top_cover.stl"/></geometry><material name="white"/></visual>
-    <collision><origin xyz="0 0 -0.15" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_top_cover.stl"/></geometry><material name="white"/></visual>
-    <collision><origin xyz="0 0 0.04" rpy="0 0 0"/><geometry><cylinder radius="0.035" length="0.08"/></geometry></collision>
-    <inertial><origin xyz="0 0 0.04" rpy="0 0 0"/><mass value="0.1"/><inertia ixx="0.0002" ixy="0" ixz="0" iyy="0.0002" iyz="0" izz="0.0001"/></inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://advika_description/stl/advika_top_dome.stl"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <!-- Simplified collision -->
+    <collision>
+      <origin xyz="0 0 0.075" rpy="0 0 0"/>
+      <geometry><cylinder radius="0.040" length="0.150"/></geometry>
+    </collision>
+    <inertial>
+      <origin xyz="0 0 0.075" rpy="0 0 0"/>
+      <mass value="0.12"/>
+      <inertia ixx="0.0003" ixy="0" ixz="0" iyy="0.0003" iyz="0" izz="0.0001"/>
+    </inertial>
   </link>
-  <joint name="lidar_tower_joint" type="fixed"><parent link="base_link"/><child link="lidar_tower"/><origin xyz="0 0 0.15" rpy="0 0 0"/></joint>
+  <joint name="lidar_tower_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="lidar_tower"/>
+    <origin xyz="0 0 0.130" rpy="0 0 0"/>
+  </joint>
 
+  <!-- ══════════════════════════════════════════════════════
+       LiDAR SENSOR — YDLIDAR X4 (primitive cylinder)
+  ══════════════════════════════════════════════════════ -->
   <link name="lidar_link">
-    <visual><origin xyz="0 0 0" rpy="0 0 0"/><geometry><cylinder radius="0.025" length="0.03"/></geometry><material name="red"/></visual>
-    <collision><origin xyz="0 0 0" rpy="0 0 0"/><geometry><cylinder radius="0.025" length="0.03"/></geometry></collision>
-    <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="0.05"/><inertia ixx="0.00001" ixy="0" ixz="0" iyy="0.00001" iyz="0" izz="0.00001"/></inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><cylinder radius="0.028" length="0.035"/></geometry>
+      <material name="red"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><cylinder radius="0.028" length="0.035"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="0.06"/>
+      <inertia ixx="0.00002" ixy="0" ixz="0" iyy="0.00002" iyz="0" izz="0.00002"/>
+    </inertial>
   </link>
-  <joint name="lidar_joint" type="fixed"><parent link="lidar_tower"/><child link="lidar_link"/><origin xyz="0 0 0.065" rpy="0 0 0"/></joint>
+  <joint name="lidar_joint" type="fixed">
+    <parent link="lidar_tower"/>
+    <child link="lidar_link"/>
+    <origin xyz="0 0 0.065" rpy="0 0 0"/>
+  </joint>
 
+  <!-- ══════════════════════════════════════════════════════
+       HORIZON CAMERA — advika_camera_horizon.stl (Fusion 360)
+  ══════════════════════════════════════════════════════ -->
   <link name="horizon_camera_link">
-    <visual><origin xyz="0 0 0" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_camera_mount_front.stl"/></geometry><material name="black"/></visual>
-    <collision><origin xyz="0 0 0" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_camera_mount_front.stl"/></geometry><material name="black"/></visual>
-    <collision><origin xyz="0 0 0" rpy="0 0 0"/><geometry><box size="0.02 0.04 0.02"/></geometry></collision>
-    <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="0.02"/><inertia ixx="0.000003" ixy="0" ixz="0" iyy="0.000003" iyz="0" izz="0.000003"/></inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://advika_description/stl/advika_camera_horizon.stl"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.025 0.024 0.012"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="0.015"/>
+      <inertia ixx="0.000002" ixy="0" ixz="0" iyy="0.000002" iyz="0" izz="0.000002"/>
+    </inertial>
   </link>
-  <joint name="horizon_camera_joint" type="fixed"><parent link="base_link"/><child link="horizon_camera_link"/><origin xyz="0.14 0 0.12" rpy="0 0 0"/></joint>
+  <joint name="horizon_camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="horizon_camera_link"/>
+    <origin xyz="0.14 0 0.12" rpy="0 0 0"/>
+  </joint>
 
+  <!-- ══════════════════════════════════════════════════════
+       FLOOR CAMERA — advika_camera_floor.stl (Fusion 360)
+  ══════════════════════════════════════════════════════ -->
   <link name="floor_camera_link">
-    <visual><origin xyz="0 0 0" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_camera_mount_floor.stl"/></geometry><material name="black"/></visual>
-    <collision><origin xyz="0 0 0" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_camera_mount_floor.stl"/></geometry><material name="black"/></visual>
-    <collision><origin xyz="0 0 0" rpy="0 0 0"/><geometry><box size="0.02 0.04 0.02"/></geometry></collision>
-    <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="0.02"/><inertia ixx="0.000003" ixy="0" ixz="0" iyy="0.000003" iyz="0" izz="0.000003"/></inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://advika_description/stl/advika_camera_floor.stl"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.025 0.024 0.012"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="0.015"/>
+      <inertia ixx="0.000002" ixy="0" ixz="0" iyy="0.000002" iyz="0" izz="0.000002"/>
+    </inertial>
   </link>
-  <joint name="floor_camera_joint" type="fixed"><parent link="base_link"/><child link="floor_camera_link"/><origin xyz="0.12 0 0.02" rpy="0 0.785 0"/></joint>
+  <joint name="floor_camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="floor_camera_link"/>
+    <origin xyz="0.12 0 0.02" rpy="0.785 0 0"/>
+  </joint>
 
-  <link name="tof_array_link">
-    <visual><origin xyz="0 0 0" rpy="0 0 0"/><geometry><box size="0.04 0.04 0.01"/></geometry><material name="green"/></visual>
-    <collision><origin xyz="0 0 0" rpy="0 0 0"/><geometry><box size="0.04 0.04 0.01"/></geometry></collision>
-    <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="0.01"/><inertia ixx="0.000001" ixy="0" ixz="0" iyy="0.000001" iyz="0" izz="0.000001"/></inertial>
+  <!-- ══════════════════════════════════════════════════════
+       MOTOR MOUNT L — advika_motor_mount_L.stl (Fusion 360)
+  ══════════════════════════════════════════════════════ -->
+  <link name="motor_mount_L">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://advika_description/stl/advika_motor_mount_L.stl"/>
+      </geometry>
+      <material name="chassis_blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.030 0.026 0.020"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="0.05"/>
+      <inertia ixx="0.00002" ixy="0" ixz="0" iyy="0.00003" iyz="0" izz="0.00002"/>
+    </inertial>
   </link>
-  <joint name="tof_array_joint" type="fixed"><parent link="base_link"/><child link="tof_array_link"/><origin xyz="0.15 0 0.08" rpy="0 0 0"/></joint>
+  <joint name="motor_mount_L_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="motor_mount_L"/>
+    <origin xyz="0 0.100 0.065" rpy="0 0 0"/>
+  </joint>
 
+  <!-- ══════════════════════════════════════════════════════
+       MOTOR MOUNT R — advika_motor_mount_R.stl (Fusion 360)
+  ══════════════════════════════════════════════════════ -->
+  <link name="motor_mount_R">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://advika_description/stl/advika_motor_mount_R.stl"/>
+      </geometry>
+      <material name="chassis_blue"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.030 0.026 0.020"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="0.05"/>
+      <inertia ixx="0.00002" ixy="0" ixz="0" iyy="0.00003" iyz="0" izz="0.00002"/>
+    </inertial>
+  </link>
+  <joint name="motor_mount_R_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="motor_mount_R"/>
+    <origin xyz="0 -0.100 0.065" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ══════════════════════════════════════════════════════
+       IMU MOUNT — advika_imu_mount.stl (Fusion 360)
+  ══════════════════════════════════════════════════════ -->
+  <link name="imu_mount">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://advika_description/stl/advika_imu_mount.stl"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.030 0.037 0.003"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="0.01"/>
+      <inertia ixx="0.000001" ixy="0" ixz="0" iyy="0.000002" iyz="0" izz="0.000002"/>
+    </inertial>
+  </link>
+  <joint name="imu_mount_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="imu_mount"/>
+    <origin xyz="0 0 0.075" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ══════════════════════════════════════════════════════
+       IMU SENSOR — BNO055 (primitive)
+  ══════════════════════════════════════════════════════ -->
   <link name="imu_link">
-    <visual><origin xyz="0 0 0" rpy="0 0 0"/><geometry><box size="0.02 0.02 0.005"/></geometry><material name="transparent"/></visual>
-    <collision><origin xyz="0 0 0" rpy="0 0 0"/><geometry><box size="0.02 0.02 0.005"/></geometry></collision>
-    <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="0.005"/><inertia ixx="0.0000001" ixy="0" ixz="0" iyy="0.0000001" iyz="0" izz="0.0000001"/></inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.020 0.027 0.004"/></geometry>
+      <material name="pcb_green"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.020 0.027 0.004"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="0.005"/>
+      <inertia ixx="0.0000002" ixy="0" ixz="0" iyy="0.0000004" iyz="0" izz="0.0000004"/>
+    </inertial>
   </link>
-  <joint name="imu_joint" type="fixed"><parent link="base_link"/><child link="imu_link"/><origin xyz="0 0 0.08" rpy="0 0 0"/></joint>
+  <joint name="imu_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="imu_link"/>
+    <origin xyz="0 0 0.075" rpy="0 0 0"/>
+  </joint>
 
-  <link name="toff_bar_link">
-    <visual><origin xyz="0 0 0" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_tof_bar.stl"/></geometry><material name="green"/></visual>
-    <collision><origin xyz="0 0 0" rpy="0 0 0"/><geometry><box size="0.08 0.015 0.003"/></geometry></collision>
-    <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="0.01"/><inertia ixx="0.000001" ixy="0" ixz="0" iyy="0.000001" iyz="0" izz="0.000001"/></inertial>
+  <!-- ══════════════════════════════════════════════════════
+       BATTERY TRAY — advika_battery_tray.stl (Fusion 360)
+  ══════════════════════════════════════════════════════ -->
+  <link name="battery_tray">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://advika_description/stl/advika_battery_tray.stl"/>
+      </geometry>
+      <material name="orange"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.110 0.075 0.025"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="0.20"/>
+      <inertia ixx="0.0002" ixy="0" ixz="0" iyy="0.0003" iyz="0" izz="0.0001"/>
+    </inertial>
   </link>
-  <joint name="toff_bar_joint" type="fixed"><parent link="base_link"/><child link="toff_bar_link"/><origin xyz="0.15 0 0.05" rpy="0 0 0"/></joint>
+  <joint name="battery_tray_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="battery_tray"/>
+    <origin xyz="-0.05 0 0.04" rpy="0 0 0"/>
+  </joint>
 
-  <link name="display_board_link">
-    <visual><origin xyz="0 0 0" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_display.stl"/></geometry><material name="black"/></visual>
-    <collision><origin xyz="0 0 0" rpy="0 0 0"/><geometry><box size="0.027 0.028 0.0015"/></geometry></collision>
-    <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="0.005"/><inertia ixx="0.0000005" ixy="0" ixz="0" iyy="0.0000005" iyz="0" izz="0.0000005"/></inertial>
+  <!-- ══════════════════════════════════════════════════════
+       ESP32 ENCLOSURE — advika_esp32_enclosure.stl (Fusion 360)
+  ══════════════════════════════════════════════════════ -->
+  <link name="esp32_enclosure">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://advika_description/stl/advika_esp32_enclosure.stl"/>
+      </geometry>
+      <material name="darkgrey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.055 0.028 0.015"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="0.03"/>
+      <inertia ixx="0.000005" ixy="0" ixz="0" iyy="0.00002" iyz="0" izz="0.00002"/>
+    </inertial>
   </link>
-  <joint name="display_board_joint" type="fixed"><parent link="base_link"/><child link="display_board_link"/><origin xyz="0 0 0.153" rpy="0 0 0"/></joint>
+  <joint name="esp32_enclosure_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="esp32_enclosure"/>
+    <origin xyz="0.10 0 0.15" rpy="0 0 0"/>
+  </joint>
 
-  <link name="lidar_disk_link">
-    <visual><origin xyz="0 0 0" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_lidar_disk.stl"/></geometry><material name="white"/></visual>
-    <collision><origin xyz="0 0 0" rpy="0 0 0"/><geometry><cylinder radius="0.035" length="0.012"/></geometry></collision>
-    <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="0.03"/><inertia ixx="0.00002" ixy="0" ixz="0" iyy="0.00002" iyz="0" izz="0.00002"/></inertial>
+  <!-- ══════════════════════════════════════════════════════
+       ToF SENSOR ARRAY — VL53L5CX (primitive, no STL)
+  ══════════════════════════════════════════════════════ -->
+  <link name="tof_array">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.080 0.015 0.003"/></geometry>
+      <material name="green"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.080 0.015 0.003"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="0.008"/>
+      <inertia ixx="0.0000003" ixy="0" ixz="0" iyy="0.0000008" iyz="0" izz="0.0000008"/>
+    </inertial>
   </link>
-  <joint name="lidar_disk_joint" type="fixed"><parent link="lidar_link"/><child link="lidar_disk_link"/><origin xyz="0 0 0.02" rpy="0 0 0"/></joint>
+  <joint name="tof_array_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="tof_array"/>
+    <origin xyz="0.15 0 0.08" rpy="0 0 0"/>
+  </joint>
 
-  <link name="imu_board_link">
-    <visual><origin xyz="0 0 0" rpy="0 0 0"/><geometry><mesh filename="package://advika_cad/meshes/advika30_imu_board.stl"/></geometry><material name="green"/></visual>
-    <collision><origin xyz="0 0 0" rpy="0 0 0"/><geometry><box size="0.02 0.027 0.0016"/></geometry></collision>
-    <inertial><origin xyz="0 0 0" rpy="0 0 0"/><mass value="0.005"/><inertia ixx="0.0000001" ixy="0" ixz="0" iyy="0.0000001" iyz="0" izz="0.0000001"/></inertial>
+  <!-- ══════════════════════════════════════════════════════
+       LiDAR DISK — adapter plate (primitive)
+  ══════════════════════════════════════════════════════ -->
+  <link name="lidar_disk">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><cylinder radius="0.035" height="0.004"/></geometry>
+      <material name="silver"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><cylinder radius="0.035" height="0.004"/></geometry>
+    </collision>
+    <inertial>
+      <mass value="0.02"/>
+      <inertia ixx="0.00001" ixy="0" ixz="0" iyy="0.00001" iyz="0" izz="0.00001"/>
+    </inertial>
   </link>
-  <joint name="imu_board_joint" type="fixed"><parent link="base_link"/><child link="imu_board_link"/><origin xyz="0 0 0.08" rpy="0 0 0"/></joint>
+  <joint name="lidar_disk_joint" type="fixed">
+    <parent link="lidar_link"/>
+    <child link="lidar_disk"/>
+    <origin xyz="0 0 0.025" rpy="0 0 0"/>
+  </joint>
 
+  <!-- ══════════════════════════════════════════════════════
+       GAZEBO PLUGINS
+  ══════════════════════════════════════════════════════ -->
   <gazebo>
     <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
       <left_joint>left_wheel_joint</left_joint>
       <right_joint>right_wheel_joint</right_joint>
-      <wheel_separation>0.20</wheel_separation>
+      <wheel_separation>0.200</wheel_separation>
       <wheel_radius>0.0325</wheel_radius>
       <max_linear_velocity>0.5</max_linear_velocity>
       <max_angular_velocity>1.0</max_angular_velocity>
@@ -159,22 +550,18 @@
     </plugin>
   </gazebo>
 
-  <gazebo>
-    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
-      <render_engine>ogre2</render_engine>
-    </plugin>
-  </gazebo>
-
+  <!-- IMU sensor -->
   <gazebo reference="imu_link">
     <sensor name="imu_sensor" type="imu">
       <always_on>true</always_on>
       <update_rate>100</update_rate>
       <visualize>false</visualize>
       <topic>/advika/imu/data</topic>
-      <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"></plugin>
+      <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"/>
     </sensor>
   </gazebo>
 
+  <!-- GPU LiDAR sensor -->
   <gazebo reference="lidar_link">
     <sensor name="lidar_sensor" type="gpu_lidar">
       <pose>0 0 0 0 0 0</pose>
@@ -182,52 +569,93 @@
       <visualize>true</visualize>
       <update_rate>20</update_rate>
       <lidar>
-        <scan><horizontal><samples>180</samples><resolution>1</resolution><min_angle>-3.14159</min_angle><max_angle>3.14159</max_angle></horizontal></scan>
-        <range><min>0.12</min><max>5.0</max><resolution>0.01</resolution></range>
-        <noise><type>gaussian</type><mean>0.0</mean><stddev>0.01</stddev></noise>
+        <scan>
+          <horizontal>
+            <samples>360</samples>
+            <resolution>1</resolution>
+            <min_angle>-3.14159</min_angle>
+            <max_angle>3.14159</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.05</min>
+          <max>5.0</max>
+          <resolution>0.01</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.005</stddev>
+        </noise>
       </lidar>
     </sensor>
   </gazebo>
 
+  <!-- Horizon camera -->
   <gazebo reference="horizon_camera_link">
     <sensor name="horizon_camera" type="camera">
       <pose>0 0 0 0 0 0</pose>
       <topic>/advika/horizon_camera/image_raw</topic>
       <camera>
-        <horizontal_fov>1.22</horizontal_fov>
-        <image><width>320</width><height>240</height><format>R8G8B8</format></image>
-        <clip><near>0.1</near><far>100</far></clip>
+        <horizontal_fov>1.85</horizontal_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.05</near>
+          <far>100</far>
+        </clip>
       </camera>
       <always_on>true</always_on>
       <update_rate>30</update_rate>
-      <visualize>true</visualize>
     </sensor>
   </gazebo>
 
+  <!-- Floor camera -->
   <gazebo reference="floor_camera_link">
     <sensor name="floor_camera" type="camera">
       <pose>0 0 0 0 0 0</pose>
       <topic>/advika/floor_camera/image_raw</topic>
       <camera>
-        <horizontal_fov>1.22</horizontal_fov>
-        <image><width>320</width><height>240</height><format>R8G8B8</format></image>
-        <clip><near>0.05</near><far>10</far></clip>
+        <horizontal_fov>1.85</horizontal_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.03</near>
+          <far>10</far>
+        </clip>
       </camera>
       <always_on>true</always_on>
       <update_rate>30</update_rate>
-      <visualize>true</visualize>
     </sensor>
   </gazebo>
 
+  <!-- Friction settings -->
   <gazebo reference="base_link">
-    <mu1>0.5</mu1><mu2>0.5</mu2><self_collide>false</self_collide><gravity>true</gravity>
+    <mu1>0.6</mu1><mu2>0.6</mu2>
+    <self_collide>false</self_collide>
+    <gravity>true</gravity>
   </gazebo>
-
   <gazebo reference="left_wheel">
-    <mu1>0.8</mu1><mu2>0.8</mu2><self_collide>false</self_collide>
+    <mu1>1.0</mu1><mu2>1.0</mu2>
+    <self_collide>false</self_collide>
+  </gazebo>
+  <gazebo reference="right_wheel">
+    <mu1>1.0</mu1><mu2>1.0</mu2>
+    <self_collide>false</self_collide>
+  </gazebo>
+  <gazebo reference="caster_front">
+    <mu1>0.3</mu1><mu2>0.3</mu2>
+    <self_collide>false</self_collide>
+  </gazebo>
+  <gazebo reference="caster_rear">
+    <mu1>0.3</mu1><mu2>0.3</mu2>
+    <self_collide>false</self_collide>
   </gazebo>
 
-  <gazebo reference="right_wheel">
-    <mu1>0.8</mu1><mu2>0.8</mu2><self_collide>false</self_collide>
-  </gazebo>
 </robot>
