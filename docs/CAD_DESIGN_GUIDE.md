@@ -352,3 +352,97 @@ Before moving to hardware phase:
 ---
 
 *Design first. Print second. Build third.*
+---
+
+## 🎓 LEARNING: FUSION 360 SIMULATION (THERMAL & STRESS)
+
+This section provides a complete step-by-step guide to run Thermal and Static Stress simulations on Advika 3.0 in Fusion 360.
+
+### ⚠️ MANDATORY FIRST — Open Simulation Workspace
+
+1. Click the workspace switcher (top-left corner of Fusion, it currently shows "Design")
+2. Click: **Simulate**
+3. A "New Study" panel opens on the left side
+
+---
+
+### 🌡️ THERMAL SIMULATION — Steps
+
+**Step 1 — Create Thermal Study**
+- In "New Study" panel: Click **Thermal**
+- Name it: Advika30_Thermal
+- Click: **OK**
+
+**Step 2 — Assign PCB Material**
+- In Study panel (left side): Click **Materials**
+- Select body: Advika30_PCB_Board (the green flat board in the model)
+- Search for: Glass Fiber
+- Select: Glass Fiber Epoxy (closest to FR-4)
+- Click: **OK**
+
+**Step 3 — Add Heat Loads**
+- Click: **Loads → Internal Heat Load**
+- **Load 1 — ESP32-S3:** Select body dvika_esp32_enclosure, Value  .5 W, Click OK
+- **Load 2 — DRV8833 Motor Driver:** Select body Advika30_PCB_Board (top face, right area), Value 1.0 W, Click OK
+- **Load 3 — Ambient Temperature:** Click **Loads → Temperature**, Select ALL outer faces of Advika30_PCB_Board, Value 25°C, Click OK
+
+**Step 4 — Add Convection**
+- Click: **Loads → Convection**
+- Select: all exposed top faces of Advika30_PCB_Board
+- Set: Convection coefficient = 10 W/m²K, Ambient temperature = 25°C
+- Click: **OK**
+
+**Step 5 — Pre-check & Solve**
+- Click: **Manage → Pre-Check** (Must show: ✅ No errors)
+- Then Click: **Solve → Solve Current** (Wait: 5–15 minutes for cloud solve)
+
+**Step 6 — Read Results**
+- Results panel → **Temperature**
+- Target: Max temp < 70°C everywhere (DRV8833 area < 85°C, ESP32 area < 80°C)
+
+---
+
+### ⚙️ STATIC STRESS SIMULATION — Steps
+
+**Step 1 — Create New Study**
+- Click: **Simulate → New Study**
+- Click: **Static Stress**
+- Name it: Advika30_Chassis_Stress
+- Click: **OK**
+
+**Step 2 — Assign PLA Material**
+- Click: **Materials**
+- Select body: dvika_chassis
+- Search: PLA or Acrylonitrile Butadiene Styrene (ABS is closest to PLA in Fusion library)
+- If not found, Create Custom: Young's Modulus 3500 MPa, Yield Strength 50 MPa, Density 1240 kg/m³, Poisson's Ratio  .36
+- Apply same material to: dvika_motor_mount_L, dvika_motor_mount_R, dvika_wheel_hub_L, dvika_wheel_hub_R
+- Click: **OK**
+
+**Step 3 — Apply Fixed Constraints**
+- Click: **Constraints → Fixed**
+- **Selection 1:** Select the BOTTOM FLAT FACE of dvika_motor_mount_L (the face that bolts to the chassis floor), Click OK
+- **Selection 2:** Select the BOTTOM FLAT FACE of dvika_motor_mount_R, Click OK
+
+**Step 4 — Apply Robot Weight Load**
+- Click: **Loads → Force**
+- **Load 1 — Total robot weight:** Select TOP FLAT FACE of dvika_chassis (200×150mm top surface), Direction -Z (downward), Magnitude 24.5 N (= 2.5 kg × 9.81), Click OK
+- **Load 2 — Battery weight:** Select TOP FACE of dvika_battery_tray, Direction -Z, Magnitude 5.9 N (= 0.6 kg × 9.81), Click OK
+
+**Step 5 — Pre-check & Solve**
+- Click: **Manage → Pre-Check** (Must show: ✅ No errors)
+- Then Click: **Solve → Solve Current** (Wait: 5–20 minutes)
+
+**Step 6 — Read Results**
+- Results panel → **Safety Factor** (opens automatically)
+- Target: Safety Factor > 2.0 (Blue = Pass), Von Mises Stress < 25 MPa, Displacement < 2mm
+- Colour Guide: 🔵 Blue = Safe (SF > 6), 🟢 Green = Good (SF 4-6), 🟡 Yellow = Marginal (SF 2-4), 🔴 Red = Danger (SF < 2)
+
+### 📊 EXPECTED RESULTS SUMMARY
+
+| Simulation | Expected Result | If Failed |
+|-----------|----------------|-----------|
+| **Thermal** | Max 60–65°C on PCB | Add venting holes to esp32 enclosure |
+| **Thermal** | DRV8833 < 85°C | Add thermal vias in BRD file |
+| **Stress** | Safety Factor > 2.0 | Increase motor mount infill to 60% |
+| **Stress** | Displacement < 2mm | Add internal ribs to chassis |
+| **Stress** | Von Mises < 25 MPa | Switch PLA → PETG material |
